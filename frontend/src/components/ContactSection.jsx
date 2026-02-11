@@ -165,19 +165,33 @@ export function ContactSection() {
               ))}
             </div>
 
-            {/* Map placeholder */}
+            {/* Google Maps */}
             <div 
-              className="mt-8 rounded-xl overflow-hidden border border-border h-[200px] relative"
-              style={{
-                background: 'linear-gradient(135deg, hsl(328 100% 54% / 0.05), hsl(0 0% 5%))',
-              }}
+              className="mt-8 rounded-xl overflow-hidden border border-border h-[250px] relative group"
             >
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="text-center">
-                  <MapPin className="w-12 h-12 text-primary/50 mx-auto mb-2" />
-                  <p className="text-muted-foreground">Bucuresti, Romania</p>
-                </div>
+              <iframe
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2848.8444388!2d26.1025!3d44.4268!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x40b1ff427093c461%3A0x5cf9e7c2b0e36c7!2sBucharest%2C%20Romania!5e0!3m2!1sen!2sro!4v1700000000000"
+                width="100%"
+                height="100%"
+                style={{ border: 0, filter: 'grayscale(80%) contrast(1.1)' }}
+                allowFullScreen=""
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                title="Locatie CrissCustoms"
+                className="transition-all duration-500 group-hover:grayscale-0"
+              />
+              <div className="absolute bottom-3 left-3 bg-black/70 backdrop-blur-sm px-3 py-2 rounded-lg flex items-center gap-2">
+                <MapPin className="w-4 h-4 text-primary" />
+                <span className="text-sm text-white">Bucuresti, Romania</span>
               </div>
+              <a 
+                href="https://www.google.com/maps?q=44.4268,26.1025" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="absolute top-3 right-3 bg-primary/90 hover:bg-primary text-white px-3 py-1.5 rounded-lg text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity"
+              >
+                Deschide in Maps
+              </a>
             </div>
           </div>
 
