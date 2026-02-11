@@ -217,20 +217,11 @@ export default function ConfiguratorPage() {
           <div className="lg:col-span-2">
             <Card className="glass-card overflow-hidden">
               <div className="relative h-[400px] md:h-[500px] bg-gradient-to-b from-background to-card">
-                <Suspense fallback={
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="text-center">
-                      <div className="w-16 h-16 border-4 border-primary/30 border-t-primary rounded-full animate-spin mx-auto mb-4" />
-                      <p className="text-muted-foreground">Se incarca vizualizatorul 3D...</p>
-                    </div>
-                  </div>
-                }>
-                  <CarViewer3D 
-                    carType={selectedCar}
-                    color={selectedColor}
-                    finish={selectedFinish}
-                  />
-                </Suspense>
+                <CarViewer3D 
+                  carType={selectedCar}
+                  color={selectedColor}
+                  finish={selectedFinish}
+                />
 
                 {/* Controls overlay */}
                 <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between">
