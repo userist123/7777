@@ -1,6 +1,8 @@
 import React from 'react';
-import { Paintbrush, Target, Megaphone, Lightbulb, Shield, Zap } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Paintbrush, Target, Megaphone, Lightbulb, Shield, Zap, Palette } from 'lucide-react';
 import { useScrollAnimation } from '../hooks/useScrollAnimation';
+import { Button } from './ui/button';
 
 const services = [
   {
