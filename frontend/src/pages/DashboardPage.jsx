@@ -143,7 +143,16 @@ export default function DashboardPage() {
     phone: user?.phone || '+40 722 123 456',
   });
   const fileInputRef = useRef(null);
+  const reviewFileInputRef = useRef(null);
   const [uploadedPhotos, setUploadedPhotos] = useState([]);
+  
+  // State for mock data - making it functional
+  const [projects, setProjects] = useState(initialProjects);
+  const [invoices, setInvoices] = useState(initialInvoices);
+  const [userGallery, setUserGallery] = useState([]);
+  const [uploadCategory, setUploadCategory] = useState('before');
+  const [selectedProjectForUpload, setSelectedProjectForUpload] = useState(null);
+  
   const [notifications, setNotifications] = useState([
     { id: 1, text: 'Proiectul BMW M4 a avansat la etapa Colantare', time: '2 ore', read: false },
     { id: 2, text: 'Factura INV-003 asteapta plata', time: '1 zi', read: false },
