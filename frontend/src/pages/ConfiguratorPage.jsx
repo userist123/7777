@@ -3,48 +3,50 @@ import { Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
 import { ScrollArea } from '../components/ui/scroll-area';
 import { Separator } from '../components/ui/separator';
-import { Slider } from '../components/ui/slider';
-import { Label } from '../components/ui/label';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../components/ui/dialog';
 import { toast } from 'sonner';
 import { 
   ArrowLeft, 
   Car, 
   Palette, 
   Sparkles, 
-  RotateCcw, 
-  Camera, 
   Share2, 
   Heart,
   MapPin,
   Phone,
-  Mail,
   Clock,
   Check,
-  ChevronRight,
-  Download,
-  ZoomIn,
-  ZoomOut,
-  Move3D,
-  Sun,
-  Moon,
-  Info
+  Info,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 
-// Import the 3D viewer directly
-import CarViewer3D from '../components/CarViewer3D';
+// Car images from Unsplash
+const carImages = {
+  sedan: [
+    'https://images.unsplash.com/photo-1735541855763-b603b3bd10a5?w=800&q=80',
+    'https://images.unsplash.com/photo-1735541855759-bb0f256ae6c5?w=800&q=80',
+  ],
+  suv: [
+    'https://images.unsplash.com/photo-1519641471654-76ce0107ad1b?w=800&q=80',
+    'https://images.unsplash.com/photo-1606664515524-ed2f786a0bd6?w=800&q=80',
+  ],
+  sports: [
+    'https://images.unsplash.com/photo-1740806669423-fd758dbfb7a0?w=800&q=80',
+    'https://images.unsplash.com/photo-1696581084151-8a038c7dfc83?w=800&q=80',
+  ],
+};
 
-// Car types with details
+// Car types
 const carTypes = [
   { id: 'sedan', name: 'Sedan', description: 'BMW, Mercedes, Audi...', icon: '🚗' },
   { id: 'suv', name: 'SUV', description: 'X5, GLE, Q7...', icon: '🚙' },
   { id: 'sports', name: 'Sports', description: 'M4, AMG GT, RS...', icon: '🏎️' },
 ];
 
-// Comprehensive vinyl wrap colors organized by category
+// Wrap colors organized by category
 const wrapColors = {
   'Clasice': [
     { name: 'Gloss Black', hex: '#0a0a0a', finish: 'gloss' },
@@ -120,7 +122,7 @@ const finishTypes = [
   { id: 'chrome', name: 'Chrome', description: 'Efect oglinda spectaculos', icon: '🪞' },
 ];
 
-// Studio location (fictional coordinates for Bucharest)
+// Studio location
 const studioLocation = {
   lat: 44.4268,
   lng: 26.1025,
@@ -135,19 +137,28 @@ export default function ConfiguratorPage() {
   const [selectedColor, setSelectedColor] = useState('#ff1493');
   const [selectedFinish, setSelectedFinish] = useState('gloss');
   const [selectedColorName, setSelectedColorName] = useState('Hot Pink');
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [favorites, setFavorites] = useState([]);
   const [showMapModal, setShowMapModal] = useState(false);
+
+  const currentImages = carImages[selectedCar] || carImages.sedan;
 
   const handleColorSelect = (color) => {
     setSelectedColor(color.hex);
     setSelectedFinish(color.finish);
     setSelectedColorName(color.name);
-    toast.success(`Culoare aplicata: ${color.name}`);
+    toast.success(`Culoare selectata: ${color.name}`);
   };
 
   const handleFinishChange = (finish) => {
     setSelectedFinish(finish);
-    toast.success(`Finisaj schimbat: ${finish}`);
+    toast.success(`Finisaj selectat: ${finish}`);
+  };
+
+  const handleCarChange = (carId) => {
+    setSelectedCar(carId);
+    setCurrentImageIndex(0);
+    toast.success(`Tip masina: ${carTypes.find(c => c.id === carId)?.name}`);
   };
 
   const handleAddToFavorites = () => {
@@ -167,16 +178,18 @@ export default function ConfiguratorPage() {
   };
 
   const handleShareConfig = () => {
-    const configUrl = `${window.location.origin}/configurator?car=${selectedCar}&color=${encodeURIComponent(selectedColor)}&finish=${selectedFinish}`;
-    navigator.clipboard.writeText(configUrl);
+    navigator.clipboard.writeText(window.location.href);
     toast.success('Link copiat in clipboard!');
   };
 
-  const handleDownloadImage = () => {
-    toast.success('Imagine salvata! (Functionalitate demo)');
+  const nextImage = () => {
+    setCurrentImageIndex((prev) => (prev + 1) % currentImages.length);
   };
 
-  // Estimate price based on selections
+  const prevImage = () => {
+    setCurrentImageIndex((prev) => (prev - 1 + currentImages.length) % currentImages.length);
+  };
+
   const getEstimatedPrice = () => {
     let base = selectedCar === 'suv' ? 3000 : selectedCar === 'sports' ? 3500 : 2500;
     if (selectedFinish === 'chrome') base += 1000;
@@ -195,17 +208,14 @@ export default function ConfiguratorPage() {
               <span className="hidden sm:inline">Inapoi la site</span>
             </Link>
             <Separator orientation="vertical" className="h-6" />
-            <h1 className="font-heading font-bold text-xl gradient-text">Configurator 3D</h1>
+            <h1 className="font-heading font-bold text-xl gradient-text">Configurator Wrap</h1>
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon" onClick={handleShareConfig}>
+            <Button variant="ghost" size="icon" onClick={handleShareConfig} data-testid="share-btn">
               <Share2 className="w-5 h-5" />
             </Button>
-            <Button variant="ghost" size="icon" onClick={handleAddToFavorites}>
+            <Button variant="ghost" size="icon" onClick={handleAddToFavorites} data-testid="favorite-btn">
               <Heart className="w-5 h-5" />
-            </Button>
-            <Button variant="ghost" size="icon" onClick={handleDownloadImage}>
-              <Camera className="w-5 h-5" />
             </Button>
           </div>
         </div>
@@ -213,40 +223,56 @@ export default function ConfiguratorPage() {
 
       <div className="max-w-7xl mx-auto px-4 py-6">
         <div className="grid lg:grid-cols-3 gap-6">
-          {/* 3D Viewer */}
+          {/* Car Preview */}
           <div className="lg:col-span-2">
             <Card className="glass-card overflow-hidden">
-              <div className="relative h-[400px] md:h-[500px] bg-gradient-to-b from-background to-card">
-                <CarViewer3D 
-                  carType={selectedCar}
-                  color={selectedColor}
-                  finish={selectedFinish}
-                />
+              <div className="relative h-[400px] md:h-[500px]">
+                {/* Car Image with Color Overlay */}
+                <div className="absolute inset-0">
+                  <img 
+                    src={currentImages[currentImageIndex]} 
+                    alt={`${selectedCar} car`}
+                    className="w-full h-full object-cover"
+                    style={{
+                      filter: `hue-rotate(0deg)`,
+                    }}
+                  />
+                  {/* Color overlay effect */}
+                  <div 
+                    className="absolute inset-0 mix-blend-multiply opacity-40"
+                    style={{ backgroundColor: selectedColor }}
+                  />
+                  <div 
+                    className="absolute inset-0 mix-blend-color opacity-30"
+                    style={{ backgroundColor: selectedColor }}
+                  />
+                </div>
 
-                {/* Controls overlay */}
-                <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Badge className="glass px-3 py-1">
-                      <Move3D className="w-4 h-4 mr-1" />
-                      Trage pentru a roti
-                    </Badge>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Button variant="ghost" size="icon" className="glass">
-                      <ZoomOut className="w-4 h-4" />
-                    </Button>
-                    <Button variant="ghost" size="icon" className="glass">
-                      <ZoomIn className="w-4 h-4" />
-                    </Button>
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
-                      className="glass"
-                      onClick={() => toast.success('Rotatie resetata')}
-                    >
-                      <RotateCcw className="w-4 h-4" />
-                    </Button>
-                  </div>
+                {/* Navigation arrows */}
+                <button 
+                  onClick={prevImage}
+                  className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/50 backdrop-blur flex items-center justify-center text-white hover:bg-black/70 transition"
+                  data-testid="prev-image-btn"
+                >
+                  <ChevronLeft className="w-6 h-6" />
+                </button>
+                <button 
+                  onClick={nextImage}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/50 backdrop-blur flex items-center justify-center text-white hover:bg-black/70 transition"
+                  data-testid="next-image-btn"
+                >
+                  <ChevronRight className="w-6 h-6" />
+                </button>
+
+                {/* Image indicators */}
+                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+                  {currentImages.map((_, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => setCurrentImageIndex(idx)}
+                      className={`w-2 h-2 rounded-full transition ${idx === currentImageIndex ? 'bg-primary w-6' : 'bg-white/50'}`}
+                    />
+                  ))}
                 </div>
 
                 {/* Current selection badge */}
@@ -275,10 +301,8 @@ export default function ConfiguratorPage() {
                   {carTypes.map((car) => (
                     <button
                       key={car.id}
-                      onClick={() => {
-                        setSelectedCar(car.id);
-                        toast.success(`Tip masina: ${car.name}`);
-                      }}
+                      onClick={() => handleCarChange(car.id)}
+                      data-testid={`car-type-${car.id}`}
                       className={`p-4 rounded-xl border-2 transition-all ${
                         selectedCar === car.id
                           ? 'border-primary bg-primary/10 shadow-neon'
@@ -316,6 +340,7 @@ export default function ConfiguratorPage() {
                           <button
                             key={color.name}
                             onClick={() => handleColorSelect(color)}
+                            data-testid={`color-${color.name.replace(/\s+/g, '-').toLowerCase()}`}
                             className={`group relative w-full aspect-square rounded-lg transition-all hover:scale-110 ${
                               selectedColor === color.hex && selectedFinish === color.finish
                                 ? 'ring-2 ring-primary ring-offset-2 ring-offset-background'
@@ -353,6 +378,7 @@ export default function ConfiguratorPage() {
                     <button
                       key={finish.id}
                       onClick={() => handleFinishChange(finish.id)}
+                      data-testid={`finish-${finish.id}`}
                       className={`p-2 rounded-lg text-center transition-all ${
                         selectedFinish === finish.id
                           ? 'bg-primary/20 border-2 border-primary'
@@ -373,7 +399,7 @@ export default function ConfiguratorPage() {
               <CardContent className="p-4">
                 <div className="flex items-center justify-between mb-3">
                   <span className="text-muted-foreground">Pret estimat</span>
-                  <span className="text-2xl font-heading font-bold text-gold">
+                  <span className="text-2xl font-heading font-bold text-gold" data-testid="estimated-price">
                     de la {getEstimatedPrice().toLocaleString()} €
                   </span>
                 </div>
@@ -383,6 +409,7 @@ export default function ConfiguratorPage() {
                 <Button 
                   className="w-full btn-neon font-semibold"
                   onClick={handleRequestQuote}
+                  data-testid="request-quote-btn"
                 >
                   Solicita oferta personalizata
                 </Button>
@@ -402,6 +429,7 @@ export default function ConfiguratorPage() {
                 <div 
                   className="h-32 rounded-lg mb-3 overflow-hidden relative cursor-pointer"
                   onClick={() => setShowMapModal(true)}
+                  data-testid="map-preview"
                 >
                   <iframe
                     src={`https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2848.8!2d${studioLocation.lng}!3d${studioLocation.lat}!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNDTCsDI1JzM2LjUiTiAyNsKwMDYnMDkuMCJF!5e0!3m2!1sen!2sro!4v1234567890`}
@@ -412,6 +440,7 @@ export default function ConfiguratorPage() {
                     loading="lazy"
                     referrerPolicy="no-referrer-when-downgrade"
                     className="grayscale hover:grayscale-0 transition-all"
+                    title="Studio Location"
                   />
                   <div className="absolute inset-0 flex items-center justify-center bg-black/30 opacity-0 hover:opacity-100 transition-opacity">
                     <Button variant="secondary" size="sm">
@@ -442,6 +471,7 @@ export default function ConfiguratorPage() {
                   variant="outline" 
                   className="w-full mt-3 border-primary/30"
                   onClick={() => window.open(`https://www.google.com/maps?q=${studioLocation.lat},${studioLocation.lng}`, '_blank')}
+                  data-testid="get-directions-btn"
                 >
                   <MapPin className="w-4 h-4 mr-2" />
                   Obtine directii
@@ -461,7 +491,7 @@ export default function ConfiguratorPage() {
                     <ol className="list-decimal list-inside space-y-1">
                       <li>Selecteaza tipul masinii tale</li>
                       <li>Alege culoarea si finisajul dorit</li>
-                      <li>Roteste modelul 3D pentru a vizualiza</li>
+                      <li>Vizualizeaza rezultatul</li>
                       <li>Solicita oferta personalizata</li>
                     </ol>
                   </div>
@@ -491,6 +521,7 @@ export default function ConfiguratorPage() {
                 allowFullScreen=""
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
+                title="Studio Location Full"
               />
             </div>
             <div className="grid md:grid-cols-2 gap-4">
