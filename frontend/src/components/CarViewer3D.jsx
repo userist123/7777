@@ -1,66 +1,33 @@
-import React, { Suspense, useRef, useState, useEffect } from 'react';
-import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { 
-  OrbitControls, 
-  Environment, 
-  PresentationControls,
-  Html,
-  useProgress
-} from '@react-three/drei';
+import React, { Suspense, useRef, useState } from 'react';
+import { Canvas, useFrame } from '@react-three/fiber';
+import { OrbitControls, Html, useProgress } from '@react-three/drei';
 import * as THREE from 'three';
 
 // Car body component - simplified 3D car shape
-function CarBody({ color, finish, metalness, roughness }) {
-  const bodyRef = useRef();
-  
+function CarBody({ color, finish }) {
   // Create material based on finish type
   const getMaterial = () => {
     const baseColor = new THREE.Color(color);
     
     switch (finish) {
       case 'chrome':
-        return {
-          color: baseColor,
-          metalness: 1,
-          roughness: 0.1,
-          envMapIntensity: 2,
-        };
+        return { color: baseColor, metalness: 1, roughness: 0.1 };
       case 'matte':
-        return {
-          color: baseColor,
-          metalness: 0.1,
-          roughness: 0.9,
-          envMapIntensity: 0.5,
-        };
+        return { color: baseColor, metalness: 0.1, roughness: 0.9 };
       case 'satin':
-        return {
-          color: baseColor,
-          metalness: 0.3,
-          roughness: 0.5,
-          envMapIntensity: 1,
-        };
+        return { color: baseColor, metalness: 0.3, roughness: 0.5 };
       case 'metallic':
-        return {
-          color: baseColor,
-          metalness: 0.8,
-          roughness: 0.3,
-          envMapIntensity: 1.5,
-        };
+        return { color: baseColor, metalness: 0.8, roughness: 0.3 };
       case 'gloss':
       default:
-        return {
-          color: baseColor,
-          metalness: 0.5,
-          roughness: 0.2,
-          envMapIntensity: 1.2,
-        };
+        return { color: baseColor, metalness: 0.5, roughness: 0.2 };
     }
   };
 
   const materialProps = getMaterial();
 
   return (
-    <group ref={bodyRef}>
+    <group>
       {/* Main body */}
       <mesh position={[0, 0.4, 0]} castShadow receiveShadow>
         <boxGeometry args={[4, 0.8, 1.8]} />
@@ -85,34 +52,24 @@ function CarBody({ color, finish, metalness, roughness }) {
         <meshStandardMaterial {...materialProps} />
       </mesh>
       
-      {/* Front bumper */}
+      {/* Bumpers */}
       <mesh position={[2.1, 0.25, 0]} castShadow>
         <boxGeometry args={[0.3, 0.5, 1.9]} />
         <meshStandardMaterial color="#1a1a1a" metalness={0.8} roughness={0.3} />
       </mesh>
-      
-      {/* Rear bumper */}
       <mesh position={[-2.1, 0.25, 0]} castShadow>
         <boxGeometry args={[0.3, 0.5, 1.9]} />
         <meshStandardMaterial color="#1a1a1a" metalness={0.8} roughness={0.3} />
       </mesh>
       
       {/* Windows */}
-      <mesh position={[-0.3, 1, 0.81]} castShadow>
+      <mesh position={[-0.3, 1, 0.81]}>
         <boxGeometry args={[1.8, 0.5, 0.02]} />
-        <meshStandardMaterial color="#111122" metalness={0.9} roughness={0.1} transparent opacity={0.7} />
+        <meshStandardMaterial color="#111133" metalness={0.9} roughness={0.1} transparent opacity={0.7} />
       </mesh>
-      <mesh position={[-0.3, 1, -0.81]} castShadow>
+      <mesh position={[-0.3, 1, -0.81]}>
         <boxGeometry args={[1.8, 0.5, 0.02]} />
-        <meshStandardMaterial color="#111122" metalness={0.9} roughness={0.1} transparent opacity={0.7} />
-      </mesh>
-      <mesh position={[0.7, 1, 0]} castShadow>
-        <boxGeometry args={[0.02, 0.5, 1.6]} />
-        <meshStandardMaterial color="#111122" metalness={0.9} roughness={0.1} transparent opacity={0.7} />
-      </mesh>
-      <mesh position={[-1.3, 1, 0]} castShadow>
-        <boxGeometry args={[0.02, 0.5, 1.6]} />
-        <meshStandardMaterial color="#111122" metalness={0.9} roughness={0.1} transparent opacity={0.7} />
+        <meshStandardMaterial color="#111133" metalness={0.9} roughness={0.1} transparent opacity={0.7} />
       </mesh>
       
       {/* Headlights */}
@@ -146,10 +103,8 @@ function CarBody({ color, finish, metalness, roughness }) {
 
 // Wheel component
 function Wheel({ position }) {
-  const wheelRef = useRef();
-  
   return (
-    <group position={position} ref={wheelRef}>
+    <group position={position}>
       {/* Tire */}
       <mesh rotation={[0, 0, Math.PI / 2]} castShadow>
         <cylinderGeometry args={[0.35, 0.35, 0.25, 32]} />
@@ -164,13 +119,12 @@ function Wheel({ position }) {
   );
 }
 
-// Complete car model
-function Car({ color, finish }) {
+// Complete car models
+function Sedan({ color, finish }) {
   const carRef = useRef();
   
   useFrame((state) => {
     if (carRef.current) {
-      // Subtle floating animation
       carRef.current.position.y = Math.sin(state.clock.elapsedTime * 0.5) * 0.02;
     }
   });
@@ -178,7 +132,6 @@ function Car({ color, finish }) {
   return (
     <group ref={carRef}>
       <CarBody color={color} finish={finish} />
-      {/* Wheels */}
       <Wheel position={[1.3, 0, 0.95]} />
       <Wheel position={[1.3, 0, -0.95]} />
       <Wheel position={[-1.3, 0, 0.95]} />
@@ -187,69 +140,58 @@ function Car({ color, finish }) {
   );
 }
 
-// SUV Model
-function SUVBody({ color, finish }) {
+function SUV({ color, finish }) {
+  const carRef = useRef();
+  
   const getMaterial = () => {
     const baseColor = new THREE.Color(color);
-    
     switch (finish) {
-      case 'chrome':
-        return { color: baseColor, metalness: 1, roughness: 0.1, envMapIntensity: 2 };
-      case 'matte':
-        return { color: baseColor, metalness: 0.1, roughness: 0.9, envMapIntensity: 0.5 };
-      case 'satin':
-        return { color: baseColor, metalness: 0.3, roughness: 0.5, envMapIntensity: 1 };
-      case 'metallic':
-        return { color: baseColor, metalness: 0.8, roughness: 0.3, envMapIntensity: 1.5 };
-      case 'gloss':
-      default:
-        return { color: baseColor, metalness: 0.5, roughness: 0.2, envMapIntensity: 1.2 };
+      case 'chrome': return { color: baseColor, metalness: 1, roughness: 0.1 };
+      case 'matte': return { color: baseColor, metalness: 0.1, roughness: 0.9 };
+      case 'satin': return { color: baseColor, metalness: 0.3, roughness: 0.5 };
+      case 'metallic': return { color: baseColor, metalness: 0.8, roughness: 0.3 };
+      default: return { color: baseColor, metalness: 0.5, roughness: 0.2 };
     }
   };
 
   const materialProps = getMaterial();
+  
+  useFrame((state) => {
+    if (carRef.current) {
+      carRef.current.position.y = Math.sin(state.clock.elapsedTime * 0.5) * 0.02;
+    }
+  });
 
   return (
-    <group>
-      {/* Main body - taller for SUV */}
-      <mesh position={[0, 0.6, 0]} castShadow receiveShadow>
+    <group ref={carRef}>
+      {/* SUV body - taller */}
+      <mesh position={[0, 0.6, 0]} castShadow>
         <boxGeometry args={[4.2, 1.2, 2]} />
         <meshStandardMaterial {...materialProps} />
       </mesh>
-      
-      {/* Cabin/Roof */}
-      <mesh position={[-0.2, 1.5, 0]} castShadow receiveShadow>
+      <mesh position={[-0.2, 1.5, 0]} castShadow>
         <boxGeometry args={[2.5, 0.9, 1.9]} />
         <meshStandardMaterial {...materialProps} />
       </mesh>
-      
-      {/* Front */}
       <mesh position={[1.8, 0.5, 0]} castShadow>
         <boxGeometry args={[0.5, 0.8, 2]} />
         <meshStandardMaterial {...materialProps} />
       </mesh>
-      
       {/* Bumpers */}
-      <mesh position={[2.2, 0.35, 0]} castShadow>
+      <mesh position={[2.2, 0.35, 0]}>
         <boxGeometry args={[0.3, 0.5, 2.1]} />
         <meshStandardMaterial color="#1a1a1a" metalness={0.8} roughness={0.3} />
       </mesh>
-      <mesh position={[-2.2, 0.35, 0]} castShadow>
+      <mesh position={[-2.2, 0.35, 0]}>
         <boxGeometry args={[0.3, 0.5, 2.1]} />
         <meshStandardMaterial color="#1a1a1a" metalness={0.8} roughness={0.3} />
       </mesh>
-      
       {/* Windows */}
       <mesh position={[-0.2, 1.5, 0.96]}>
         <boxGeometry args={[2.3, 0.7, 0.02]} />
-        <meshStandardMaterial color="#111122" metalness={0.9} roughness={0.1} transparent opacity={0.7} />
+        <meshStandardMaterial color="#111133" metalness={0.9} roughness={0.1} transparent opacity={0.7} />
       </mesh>
-      <mesh position={[-0.2, 1.5, -0.96]}>
-        <boxGeometry args={[2.3, 0.7, 0.02]} />
-        <meshStandardMaterial color="#111122" metalness={0.9} roughness={0.1} transparent opacity={0.7} />
-      </mesh>
-      
-      {/* Headlights */}
+      {/* Lights */}
       <mesh position={[2.15, 0.6, 0.7]}>
         <boxGeometry args={[0.1, 0.25, 0.35]} />
         <meshStandardMaterial color="#ffffff" emissive="#ffffff" emissiveIntensity={0.3} />
@@ -258,8 +200,6 @@ function SUVBody({ color, finish }) {
         <boxGeometry args={[0.1, 0.25, 0.35]} />
         <meshStandardMaterial color="#ffffff" emissive="#ffffff" emissiveIntensity={0.3} />
       </mesh>
-      
-      {/* Taillights */}
       <mesh position={[-2.15, 0.6, 0.7]}>
         <boxGeometry args={[0.1, 0.2, 0.3]} />
         <meshStandardMaterial color="#ff0000" emissive="#ff0000" emissiveIntensity={0.5} />
@@ -268,23 +208,7 @@ function SUVBody({ color, finish }) {
         <boxGeometry args={[0.1, 0.2, 0.3]} />
         <meshStandardMaterial color="#ff0000" emissive="#ff0000" emissiveIntensity={0.5} />
       </mesh>
-    </group>
-  );
-}
-
-function SUV({ color, finish }) {
-  const carRef = useRef();
-  
-  useFrame((state) => {
-    if (carRef.current) {
-      carRef.current.position.y = Math.sin(state.clock.elapsedTime * 0.5) * 0.02;
-    }
-  });
-
-  return (
-    <group ref={carRef}>
-      <SUVBody color={color} finish={finish} />
-      {/* Larger wheels for SUV */}
+      {/* Wheels */}
       <Wheel position={[1.4, 0, 1.05]} />
       <Wheel position={[1.4, 0, -1.05]} />
       <Wheel position={[-1.4, 0, 1.05]} />
@@ -293,24 +217,17 @@ function SUV({ color, finish }) {
   );
 }
 
-// Sports car model
 function SportsCar({ color, finish }) {
   const carRef = useRef();
   
   const getMaterial = () => {
     const baseColor = new THREE.Color(color);
     switch (finish) {
-      case 'chrome':
-        return { color: baseColor, metalness: 1, roughness: 0.1, envMapIntensity: 2 };
-      case 'matte':
-        return { color: baseColor, metalness: 0.1, roughness: 0.9, envMapIntensity: 0.5 };
-      case 'satin':
-        return { color: baseColor, metalness: 0.3, roughness: 0.5, envMapIntensity: 1 };
-      case 'metallic':
-        return { color: baseColor, metalness: 0.8, roughness: 0.3, envMapIntensity: 1.5 };
-      case 'gloss':
-      default:
-        return { color: baseColor, metalness: 0.5, roughness: 0.2, envMapIntensity: 1.2 };
+      case 'chrome': return { color: baseColor, metalness: 1, roughness: 0.1 };
+      case 'matte': return { color: baseColor, metalness: 0.1, roughness: 0.9 };
+      case 'satin': return { color: baseColor, metalness: 0.3, roughness: 0.5 };
+      case 'metallic': return { color: baseColor, metalness: 0.8, roughness: 0.3 };
+      default: return { color: baseColor, metalness: 0.5, roughness: 0.2 };
     }
   };
 
@@ -324,53 +241,39 @@ function SportsCar({ color, finish }) {
 
   return (
     <group ref={carRef}>
-      {/* Low, wide body */}
-      <mesh position={[0, 0.3, 0]} castShadow receiveShadow>
+      {/* Sports car - low and wide */}
+      <mesh position={[0, 0.3, 0]} castShadow>
         <boxGeometry args={[4.5, 0.5, 2]} />
         <meshStandardMaterial {...materialProps} />
       </mesh>
-      
-      {/* Hood - sloped */}
-      <mesh position={[1.5, 0.35, 0]} rotation={[0, 0, -0.1]} castShadow receiveShadow>
+      <mesh position={[1.5, 0.35, 0]} rotation={[0, 0, -0.1]} castShadow>
         <boxGeometry args={[1.5, 0.2, 1.9]} />
         <meshStandardMaterial {...materialProps} />
       </mesh>
-      
-      {/* Low cabin */}
-      <mesh position={[-0.3, 0.7, 0]} castShadow receiveShadow>
+      <mesh position={[-0.3, 0.7, 0]} castShadow>
         <boxGeometry args={[1.8, 0.5, 1.7]} />
         <meshStandardMaterial {...materialProps} />
       </mesh>
-      
-      {/* Rear */}
-      <mesh position={[-1.8, 0.4, 0]} castShadow receiveShadow>
+      <mesh position={[-1.8, 0.4, 0]} castShadow>
         <boxGeometry args={[1, 0.4, 1.9]} />
         <meshStandardMaterial {...materialProps} />
       </mesh>
-      
       {/* Spoiler */}
-      <mesh position={[-2.1, 0.7, 0]} castShadow>
+      <mesh position={[-2.1, 0.7, 0]}>
         <boxGeometry args={[0.1, 0.3, 1.8]} />
         <meshStandardMaterial color="#1a1a1a" metalness={0.9} roughness={0.2} />
       </mesh>
-      
-      {/* Windows */}
-      <mesh position={[-0.3, 0.7, 0.86]}>
-        <boxGeometry args={[1.6, 0.35, 0.02]} />
-        <meshStandardMaterial color="#111122" metalness={0.9} roughness={0.1} transparent opacity={0.7} />
-      </mesh>
-      <mesh position={[-0.3, 0.7, -0.86]}>
-        <boxGeometry args={[1.6, 0.35, 0.02]} />
-        <meshStandardMaterial color="#111122" metalness={0.9} roughness={0.1} transparent opacity={0.7} />
-      </mesh>
-      
-      {/* Bumpers */}
-      <mesh position={[2.3, 0.2, 0]} castShadow>
+      {/* Bumper */}
+      <mesh position={[2.3, 0.2, 0]}>
         <boxGeometry args={[0.2, 0.3, 2.1]} />
         <meshStandardMaterial color="#1a1a1a" metalness={0.8} roughness={0.3} />
       </mesh>
-      
-      {/* Headlights */}
+      {/* Windows */}
+      <mesh position={[-0.3, 0.7, 0.86]}>
+        <boxGeometry args={[1.6, 0.35, 0.02]} />
+        <meshStandardMaterial color="#111133" metalness={0.9} roughness={0.1} transparent opacity={0.7} />
+      </mesh>
+      {/* Lights */}
       <mesh position={[2.25, 0.35, 0.7]}>
         <boxGeometry args={[0.1, 0.15, 0.4]} />
         <meshStandardMaterial color="#ffffff" emissive="#ffffff" emissiveIntensity={0.4} />
@@ -379,8 +282,6 @@ function SportsCar({ color, finish }) {
         <boxGeometry args={[0.1, 0.15, 0.4]} />
         <meshStandardMaterial color="#ffffff" emissive="#ffffff" emissiveIntensity={0.4} />
       </mesh>
-      
-      {/* Taillights */}
       <mesh position={[-2.25, 0.5, 0.7]}>
         <boxGeometry args={[0.1, 0.1, 0.3]} />
         <meshStandardMaterial color="#ff0000" emissive="#ff0000" emissiveIntensity={0.6} />
@@ -389,8 +290,7 @@ function SportsCar({ color, finish }) {
         <boxGeometry args={[0.1, 0.1, 0.3]} />
         <meshStandardMaterial color="#ff0000" emissive="#ff0000" emissiveIntensity={0.6} />
       </mesh>
-      
-      {/* Wheels - wider stance */}
+      {/* Wheels */}
       <Wheel position={[1.5, 0, 1.05]} />
       <Wheel position={[1.5, 0, -1.05]} />
       <Wheel position={[-1.3, 0, 1.05]} />
@@ -405,46 +305,36 @@ function Loader() {
   return (
     <Html center>
       <div className="flex flex-col items-center">
-        <div className="w-16 h-16 border-4 border-primary/30 border-t-primary rounded-full animate-spin mb-4" />
-        <p className="text-primary font-medium">{progress.toFixed(0)}% loaded</p>
+        <div className="w-16 h-16 border-4 border-pink-500/30 border-t-pink-500 rounded-full animate-spin mb-4" />
+        <p className="text-pink-500 font-medium">{progress.toFixed(0)}% loaded</p>
       </div>
     </Html>
   );
 }
 
-// Scene setup
+// Scene setup - simplified without Environment
 function Scene({ carType, color, finish }) {
   return (
     <>
-      <ambientLight intensity={0.5} />
-      <spotLight 
-        position={[10, 10, 10]} 
-        angle={0.3} 
-        penumbra={1} 
-        intensity={1.2} 
-        castShadow 
-      />
-      <spotLight 
-        position={[-10, 10, -10]} 
-        angle={0.3} 
-        penumbra={1} 
-        intensity={0.6} 
-      />
-      <pointLight position={[0, 5, 0]} intensity={0.4} />
+      <ambientLight intensity={0.6} />
+      <directionalLight position={[10, 10, 5]} intensity={1.5} castShadow />
+      <directionalLight position={[-10, 10, -5]} intensity={0.8} />
+      <pointLight position={[0, 8, 0]} intensity={0.5} />
+      <hemisphereLight intensity={0.4} groundColor="#0a0a0a" />
       
       {/* Select car based on type */}
-      {carType === 'sedan' && <Car color={color} finish={finish} />}
+      {carType === 'sedan' && <Sedan color={color} finish={finish} />}
       {carType === 'suv' && <SUV color={color} finish={finish} />}
       {carType === 'sports' && <SportsCar color={color} finish={finish} />}
       
       {/* Ground plane */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.35, 0]} receiveShadow>
-        <planeGeometry args={[20, 20]} />
-        <meshStandardMaterial color="#0a0a0a" roughness={0.8} metalness={0.2} />
+        <planeGeometry args={[30, 30]} />
+        <meshStandardMaterial color="#080808" roughness={0.9} metalness={0.1} />
       </mesh>
       
-      {/* Environment for reflections */}
-      <Environment preset="city" />
+      {/* Grid helper for visual reference */}
+      <gridHelper args={[20, 40, '#1a1a1a', '#0f0f0f']} position={[0, -0.34, 0]} />
     </>
   );
 }
@@ -457,26 +347,17 @@ export function CarViewer3D({ carType = 'sedan', color = '#ff1493', finish = 'gl
         shadows
         camera={{ position: [6, 3, 6], fov: 45 }}
         gl={{ antialias: true, alpha: true }}
-        style={{ background: 'transparent' }}
+        style={{ background: 'linear-gradient(180deg, #0a0a0a 0%, #151515 100%)' }}
       >
         <Suspense fallback={<Loader />}>
-          <PresentationControls
-            global
-            rotation={[0, 0, 0]}
-            polar={[-Math.PI / 4, Math.PI / 4]}
-            azimuth={[-Infinity, Infinity]}
-            config={{ mass: 2, tension: 400 }}
-            snap={{ mass: 4, tension: 400 }}
-          >
-            <Scene carType={carType} color={color} finish={finish} />
-          </PresentationControls>
+          <Scene carType={carType} color={color} finish={finish} />
           <OrbitControls 
             enablePan={false}
             enableZoom={true}
             minDistance={4}
             maxDistance={12}
             minPolarAngle={0.3}
-            maxPolarAngle={Math.PI / 2}
+            maxPolarAngle={Math.PI / 2.2}
             autoRotate
             autoRotateSpeed={0.5}
           />
