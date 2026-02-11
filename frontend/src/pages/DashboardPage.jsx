@@ -46,8 +46,8 @@ import {
   Sparkles
 } from 'lucide-react';
 
-// Mock data for user projects
-const mockProjects = [
+// Initial mock data for user projects
+const initialProjects = [
   {
     id: 1,
     vehicle: 'BMW M4 Competition 2023',
@@ -97,7 +97,7 @@ const mockProjects = [
   }
 ];
 
-const mockInvoices = [
+const initialInvoices = [
   { id: 'INV-001', project: 'BMW M4 - Full Wrap', amount: 1600, status: 'paid', date: '2024-01-15', type: 'Avans 50%' },
   { id: 'INV-002', project: 'Mercedes AMG GT - PPF', amount: 2800, status: 'paid', date: '2024-01-08', type: 'Plata finala' },
   { id: 'INV-003', project: 'BMW M4 - Full Wrap', amount: 1600, status: 'pending', date: '2024-01-22', type: 'Rest de plata' },
