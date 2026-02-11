@@ -418,36 +418,32 @@ function Loader() {
 function Scene({ carType, color, finish }) {
   return (
     <>
-      <ambientLight intensity={0.4} />
+      <ambientLight intensity={0.5} />
       <spotLight 
         position={[10, 10, 10]} 
         angle={0.3} 
         penumbra={1} 
-        intensity={1} 
+        intensity={1.2} 
         castShadow 
-        shadow-mapSize={[2048, 2048]}
       />
       <spotLight 
         position={[-10, 10, -10]} 
         angle={0.3} 
         penumbra={1} 
-        intensity={0.5} 
+        intensity={0.6} 
       />
-      <pointLight position={[0, 5, 0]} intensity={0.3} />
+      <pointLight position={[0, 5, 0]} intensity={0.4} />
       
       {/* Select car based on type */}
       {carType === 'sedan' && <Car color={color} finish={finish} />}
       {carType === 'suv' && <SUV color={color} finish={finish} />}
       {carType === 'sports' && <SportsCar color={color} finish={finish} />}
       
-      {/* Ground/Shadow */}
-      <ContactShadows 
-        position={[0, -0.35, 0]} 
-        opacity={0.5} 
-        scale={12} 
-        blur={2.5} 
-        far={4}
-      />
+      {/* Ground plane */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.35, 0]} receiveShadow>
+        <planeGeometry args={[20, 20]} />
+        <meshStandardMaterial color="#0a0a0a" roughness={0.8} metalness={0.2} />
+      </mesh>
       
       {/* Environment for reflections */}
       <Environment preset="city" />
