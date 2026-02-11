@@ -34,8 +34,8 @@ import {
   Info
 } from 'lucide-react';
 
-// Lazy load the 3D viewer
-const CarViewer3D = lazy(() => import('../components/CarViewer3D'));
+// Import the 3D viewer directly
+import CarViewer3D from '../components/CarViewer3D';
 
 // Car types with details
 const carTypes = [
