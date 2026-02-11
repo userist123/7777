@@ -79,7 +79,12 @@ export function PortfolioSection() {
 
   const filteredItems = activeFilter === 'Toate' 
     ? portfolioItems 
-    : portfolioItems.filter(item => item.category.includes(activeFilter.replace(' ', '')));
+    : portfolioItems.filter(item => {
+        if (activeFilter === 'PPF') {
+          return item.category.toLowerCase().includes('ppf');
+        }
+        return item.category.toLowerCase().includes(activeFilter.toLowerCase().replace(' ', ''));
+      });
 
   const handleLike = (id, e) => {
     e.stopPropagation();
