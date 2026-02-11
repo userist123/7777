@@ -167,31 +167,92 @@ export default function DashboardPage() {
   const handleSendMessage = (projectId) => {
     if (!newMessage.trim()) return;
     
+    const newMsg = {
+      id: Date.now(),
+      from: 'user',
+      name: 'Tu',
+      text: newMessage,
+      date: new Date().toLocaleString('ro-RO'),
+      read: true
+    };
+    
+    setProjects(prev => prev.map(p => 
+      p.id === projectId 
+        ? { ...p, messages: [...p.messages, newMsg] }
+        : p
+    ));
+    
+    if (selectedProject && selectedProject.id === projectId) {
+      setSelectedProject(prev => ({
+        ...prev,
+        messages: [...prev.messages, newMsg]
+      }));
+    }
+    
     toast.success('Mesaj trimis cu succes!');
     setNewMessage('');
-  };
-
-  const handleProfileUpdate = async () => {
-    await updateProfile(profileData);
-    toast.success('Profil actualizat cu succes!');
-    setShowProfileModal(false);
-  };
-
-  const handleReviewSubmit = () => {
-    toast.success('Recenzie trimisa pentru aprobare! Multumim!');
-    setShowReviewModal(false);
-    setReviewData({ rating: 5, text: '', photos: [] });
   };
 
   const handlePhotoUpload = (e) => {
     const files = Array.from(e.target.files);
     const newPhotos = files.map(file => ({
+      id: Date.now() + Math.random(),
       name: file.name,
       preview: URL.createObjectURL(file),
       file
     }));
     setUploadedPhotos(prev => [...prev, ...newPhotos]);
-    toast.success(`${files.length} fotografii incarcate!`);
+  };
+
+  const handleSavePhotos = () => {
+    if (uploadedPhotos.length === 0) {
+      toast.error('Nu ai selectat nicio fotografie');
+      return;
+    }
+    
+    if (selectedProjectForUpload) {
+      // Add photos to specific project
+      const newImages = uploadedPhotos.map(p => p.preview);
+      setProjects(prev => prev.map(proj => 
+        proj.id === selectedProjectForUpload
+          ? {
+              ...proj,
+              images: {
+                ...proj.images,
+                [uploadCategory]: [...proj.images[uploadCategory], ...newImages]
+              }
+            }
+          : proj
+      ));
+      toast.success(`${uploadedPhotos.length} fotografii adaugate la proiect!`);
+    } else {
+      // Add to general gallery
+      const newGalleryItems = uploadedPhotos.map(p => ({
+        id: Date.now() + Math.random(),
+        img: p.preview,
+        project: 'General',
+        stage: uploadCategory === 'before' ? 'Inainte' : uploadCategory === 'during' ? 'In timpul' : 'Dupa',
+        date: new Date().toLocaleDateString('ro-RO')
+      }));
+      setUserGallery(prev => [...prev, ...newGalleryItems]);
+      toast.success(`${uploadedPhotos.length} fotografii incarcate in galerie!`);
+    }
+    
+    setShowUploadModal(false);
+    setUploadedPhotos([]);
+    setSelectedProjectForUpload(null);
+  };
+
+  const handleReviewPhotoUpload = (e) => {
+    const files = Array.from(e.target.files);
+    const newPhotos = files.map(file => ({
+      name: file.name,
+      preview: URL.createObjectURL(file)
+    }));
+    setReviewData(prev => ({
+      ...prev,
+      photos: [...prev.photos, ...newPhotos]
+    }));
   };
 
   const markNotificationsRead = () => {
