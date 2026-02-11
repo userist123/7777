@@ -167,7 +167,7 @@ export function Navbar() {
         <button
           type="button"
           onClick={() => setIsMobileOpen(!isMobileOpen)}
-          className="lg:hidden p-2 text-primary transition-transform duration-300"
+          className="lg:hidden p-2 text-primary transition-transform duration-300 z-50 relative"
           style={{
             transform: isMobileOpen ? 'rotate(90deg)' : 'rotate(0deg)',
           }}
@@ -179,7 +179,7 @@ export function Navbar() {
 
       {/* Mobile menu */}
       <div
-        className={`lg:hidden overflow-hidden transition-all duration-400 ${
+        className={`lg:hidden overflow-hidden transition-all duration-400 z-40 ${
           isMobileOpen ? 'max-h-[600px] opacity-100' : 'max-h-0 opacity-0'
         }`}
       >
