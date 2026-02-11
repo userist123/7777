@@ -11,6 +11,7 @@ import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import DashboardPage from "./pages/DashboardPage";
 import AdminPage from "./pages/AdminPage";
+import ConfiguratorPage from "./pages/ConfiguratorPage";
 
 // Protected route component
 function ProtectedRoute({ children, adminOnly = false }) {
