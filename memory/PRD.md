@@ -5,103 +5,100 @@ A premium car wrapping studio website with dark theme and neon pink/red accents.
 
 **Slogan:** "Where Light Meets Art"
 
-## Features Implemented
+## Completed Features (December 2025)
 
 ### 1. Landing Page Sections
 - **Hero Section**: Full-screen hero with background image, animated particles, gradient text, and CTA buttons
 - **About Section**: Company overview with stats (500+ projects, 400+ clients, 8+ years experience)
 - **Services Section**: 6 service cards (Full Wrap, Partial, Reclama, Faruri/Stopuri, PPF, Custom) with hover effects
 - **Portfolio Section**: Filterable gallery with lightbox, like functionality, and category filters
-- **Process Section**: 6-step process visualization (Consultanta → Design → Aprobare → Pregătire → Colantare → Livrare)
-- **Pricing Section**: 3 pricing tiers (Partial Wrap, Full Wrap, PPF Premium)
-- **Testimonials Section**: Client reviews with ratings and carousel on mobile
+- **Process Section**: 6-step process visualization
+- **Pricing Section**: 3 pricing tiers
+- **Testimonials Section**: Client reviews with ratings
 - **FAQ Section**: Accordion-style FAQ
-- **Contact Section**: Contact form with validation and contact info cards
-- **Footer**: Quick links, services, social media, and contact details
+- **Contact Section**: Contact form + Google Maps integration
+- **Footer**: Quick links, services, social media
 
-### 2. Authentication System
-- Login page with form validation
-- Registration page with full validation
+### 2. Authentication System (MOCKED)
+- Login/Register pages with validation
 - Session management via localStorage
-- Protected routes for authenticated users
+- Protected routes
 - Role-based access (admin/user)
+- **Test Credentials:**
+  - Admin: admin@crisscustoms.ro / admin123
+  - Client: client@test.ro / client123
 
 ### 3. User Dashboard
-- Project progress tracking with 8 stages
-- Project statistics (active projects, total invested)
-- Before/during/after photo tracking
-- Message and invoice sections (UI ready)
+- Project progress tracking
+- Statistics and charts (Recharts)
+- Photo tracking UI
 
 ### 4. Admin Panel
-- Revenue and statistics overview
-- Project management with status tracking
-- Customer management
-- Quote management with pending count
-- Review moderation (approve/reject)
-- Quick action buttons
+- Revenue/statistics overview with charts
+- Project/customer management UI
+- Quote management
+- Review moderation UI
+
+### 5. Wrap Configurator (/configurator)
+- Car type selection (Sedan, SUV, Sports)
+- 40+ wrap colors organized by category
+- 5 finish types (Gloss, Matte, Satin, Metallic, Chrome)
+- Dynamic price estimation
+- Image gallery with color overlay effect
+- Google Maps location integration
+- Share and favorites functionality
+
+### 6. Google Maps Integration
+- Embedded in Contact section on homepage
+- Embedded in Configurator page
+- Fictional location: Bucuresti, Romania
 
 ## Tech Stack
 - **Frontend**: React 19, React Router v7
 - **Styling**: Tailwind CSS, shadcn/ui components
 - **Icons**: Lucide React
-- **State Management**: React Context (AuthContext)
-- **Notifications**: Sonner toast library
-- **Animations**: Custom CSS animations, scroll-triggered effects
+- **State**: React Context (AuthContext)
+- **Notifications**: Sonner
+- **Charts**: Recharts
 
-## Design System
-- **Primary Color**: Neon Pink (HSL 328 100% 54%)
-- **Accent Color**: Neon Red (HSL 348 100% 50%)
-- **Gold**: HSL 51 100% 50%
-- **Background**: Dark (HSL 0 0% 3%)
-- **Typography**: Montserrat (headings), Roboto (body)
-
-## Mock Authentication Credentials
-- **Admin**: admin@crisscustoms.ro / admin123
-- **Client**: client@test.ro / client123
+## What's MOCKED (No Backend)
+- All authentication (localStorage only)
+- Dashboard data
+- Admin statistics
+- Form submissions
+- Project management
 
 ## File Structure
 ```
 /app/frontend/src/
 ├── components/
-│   ├── ui/              # shadcn components
+│   ├── ui/           # shadcn components
 │   ├── Navbar.jsx
 │   ├── HeroSection.jsx
-│   ├── AboutSection.jsx
 │   ├── ServicesSection.jsx
 │   ├── PortfolioSection.jsx
-│   ├── ProcessSection.jsx
-│   ├── PricingSection.jsx
-│   ├── TestimonialsSection.jsx
-│   ├── FAQSection.jsx
-│   ├── ContactSection.jsx
-│   └── Footer.jsx
+│   ├── ContactSection.jsx (Google Maps here)
+│   └── ...
 ├── pages/
 │   ├── HomePage.jsx
 │   ├── LoginPage.jsx
 │   ├── RegisterPage.jsx
 │   ├── DashboardPage.jsx
-│   └── AdminPage.jsx
+│   ├── AdminPage.jsx
+│   └── ConfiguratorPage.jsx
 ├── contexts/
 │   └── AuthContext.js
-├── hooks/
-│   └── useScrollAnimation.js
-├── App.js
-├── index.css           # Design system tokens
-└── tailwind.config.js
+└── App.js
 ```
 
-## Important Notes
-- **MOCK DATA**: This is a frontend prototype. All data is mocked:
-  - Authentication uses localStorage
-  - Contact form submission is simulated
-  - Dashboard projects are hardcoded
-  - Admin stats are static mock data
-- Backend API integration is ready via `process.env.REACT_APP_BACKEND_URL`
+## Backlog / Future Tasks
+1. **P1**: Photo upload functionality (User & Admin)
+2. **P2**: Make dashboards fully interactive with mock data CRUD
+3. **P2**: Differentiate guest vs logged-in user content
+4. **P3**: Add more car images per type
+5. **P3**: Implement real backend (FastAPI + MongoDB)
 
-## Next Steps for Full Implementation
-1. Connect to real backend API
-2. Implement MongoDB database for users, projects, quotes
-3. Add real payment integration (Stripe recommended)
-4. Implement file upload for project photos
-5. Add email notifications (SendGrid)
-6. Implement real-time updates (Socket.IO)
+## Notes
+- 3D car configurator was removed due to technical issues with Three.js/React Three Fiber
+- Current configurator uses image-based visualization with color overlay
+- All data is client-side only
