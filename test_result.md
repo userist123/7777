@@ -219,10 +219,17 @@ metadata:
   test_sequence: 1
 
 test_plan:
-  current_focus: []
+  current_focus:
+    - "Welcome Popup for Guests"
+    - "Promo Popup on Scroll"
+    - "Chat Widget for Guests"
+    - "Enhanced Admin Dashboard"
+    - "Enhanced User Dashboard"
+    - "Glassmorphism Effects"
+    - "Mobile Dashboard Responsiveness"
   stuck_tasks: []
   test_all: false
-  test_priority: "completed"
+  test_priority: "high_first"
 
 agent_communication:
     - agent: "testing"
