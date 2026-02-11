@@ -3,9 +3,7 @@ import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { 
   OrbitControls, 
   Environment, 
-  ContactShadows,
   PresentationControls,
-  Float,
   Html,
   useProgress
 } from '@react-three/drei';
