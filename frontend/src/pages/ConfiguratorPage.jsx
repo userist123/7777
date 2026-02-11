@@ -137,14 +137,6 @@ export default function ConfiguratorPage() {
   const [selectedColorName, setSelectedColorName] = useState('Hot Pink');
   const [favorites, setFavorites] = useState([]);
   const [showMapModal, setShowMapModal] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  const [viewAngle, setViewAngle] = useState(0);
-
-  useEffect(() => {
-    // Simulate loading
-    const timer = setTimeout(() => setIsLoading(false), 1500);
-    return () => clearTimeout(timer);
-  }, []);
 
   const handleColorSelect = (color) => {
     setSelectedColor(color.hex);
