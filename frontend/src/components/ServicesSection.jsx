@@ -119,9 +119,33 @@ export function ServicesSection() {
         ))}
       </div>
 
+      {/* 3D Configurator CTA */}
+      <div
+        className="mt-10 glass-card-pink p-6 rounded-2xl text-center transition-all duration-700"
+        style={{
+          opacity: isVisible ? 1 : 0,
+          transform: isVisible ? 'translateY(0)' : 'translateY(20px)',
+          transitionDelay: '500ms',
+        }}
+      >
+        <Palette className="w-12 h-12 mx-auto text-primary mb-4 animate-glow-pulse" />
+        <h3 className="font-heading font-bold text-xl text-foreground mb-2">
+          Vizualizeaza masina ta in 3D!
+        </h3>
+        <p className="text-muted-foreground mb-4">
+          Foloseste configuratorul nostru 3D pentru a vedea cum va arata masina ta cu diferite culori si finisaje.
+        </p>
+        <Link to="/configurator">
+          <Button className="btn-neon px-8 py-6 text-lg font-semibold animate-neon-pulse">
+            <Palette className="w-5 h-5 mr-2" />
+            Deschide Configuratorul 3D
+          </Button>
+        </Link>
+      </div>
+
       {/* Consultancy note */}
       <div
-        className="mt-10 p-6 rounded-lg bg-gold/5 border-l-4 border-gold transition-all duration-700"
+        className="mt-6 p-6 rounded-lg bg-gold/5 border-l-4 border-gold transition-all duration-700"
         style={{
           opacity: isVisible ? 1 : 0,
           transform: isVisible ? 'translateY(0)' : 'translateY(20px)',
