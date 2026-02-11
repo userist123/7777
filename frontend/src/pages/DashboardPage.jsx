@@ -289,10 +289,10 @@ export default function DashboardPage() {
   };
 
   // Stats
-  const totalProjects = mockProjects.length;
-  const activeProjects = mockProjects.filter(p => p.status === 'in_progress').length;
-  const totalInvested = mockProjects.reduce((sum, p) => sum + p.totalCost, 0);
-  const unreadMessages = mockProjects.reduce((sum, p) => sum + p.messages.filter(m => !m.read && m.from === 'team').length, 0);
+  const totalProjects = projects.length;
+  const activeProjects = projects.filter(p => p.status === 'in_progress').length;
+  const totalInvested = projects.reduce((sum, p) => sum + p.totalCost, 0);
+  const unreadMessages = projects.reduce((sum, p) => sum + p.messages.filter(m => !m.read && m.from === 'team').length, 0);
 
   return (
     <div className="min-h-screen bg-background">
