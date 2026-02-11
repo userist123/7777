@@ -102,7 +102,7 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "Test the CrissCustoms & WobArt car wrapping studio website functionality including homepage navigation, hero section, services, portfolio, contact form, authentication flow, and mobile responsiveness"
+user_problem_statement: "Test the upgraded CrissCustoms & WobArt website with new features: guest experience (welcome popup, promo popup, chat widget), enhanced admin dashboard with detailed features, enhanced user dashboard with project details and photo galleries, glassmorphism effects, and mobile responsiveness for dashboards"
 
 frontend:
   - task: "Homepage Navigation"
