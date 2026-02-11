@@ -255,6 +255,34 @@ export default function DashboardPage() {
     }));
   };
 
+  const handleProfileUpdate = async () => {
+    await updateProfile(profileData);
+    toast.success('Profil actualizat cu succes!');
+    setShowProfileModal(false);
+  };
+
+  const handleReviewSubmit = () => {
+    if (!reviewData.text.trim()) {
+      toast.error('Te rugam sa scrii o recenzie');
+      return;
+    }
+    toast.success('Recenzie trimisa pentru aprobare! Multumim!');
+    setShowReviewModal(false);
+    setReviewData({ rating: 5, text: '', photos: [] });
+  };
+
+  const handlePayInvoice = (invoiceId) => {
+    setInvoices(prev => prev.map(inv =>
+      inv.id === invoiceId ? { ...inv, status: 'paid' } : inv
+    ));
+    toast.success('Plata inregistrata cu succes!');
+  };
+
+  const handleDeleteGalleryPhoto = (photoId) => {
+    setUserGallery(prev => prev.filter(p => p.id !== photoId));
+    toast.success('Fotografie stearsa');
+  };
+
   const markNotificationsRead = () => {
     setNotifications(prev => prev.map(n => ({ ...n, read: true })));
     toast.success('Notificari marcate ca citite');
