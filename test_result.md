@@ -105,77 +105,89 @@
 user_problem_statement: "Test the upgraded CrissCustoms & WobArt website with new features: guest experience (welcome popup, promo popup, chat widget), enhanced admin dashboard with detailed features, enhanced user dashboard with project details and photo galleries, glassmorphism effects, and mobile responsiveness for dashboards"
 
 frontend:
-  - task: "Homepage Navigation"
+  - task: "Welcome Popup for Guests"
     implemented: true
-    working: true
-    file: "/app/frontend/src/components/Navbar.jsx"
+    working: "NA"
+    file: "/app/frontend/src/pages/HomePage.jsx"
     stuck_count: 0
     priority: "high"
-    needs_retesting: false
+    needs_retesting: true
     status_history:
-        - working: true
+        - working: "NA"
         - agent: "testing"
-        - comment: "✅ PASSED - All navigation menu items (Acasa, Despre, Servicii, Portofoliu, Proces, Preturi, FAQ, Contact) are visible and functional. Smooth scrolling to sections works perfectly. Login button in navbar is accessible."
+        - comment: "NEEDS TESTING - Welcome popup should appear for first-time visitors after 3 seconds. Implementation found in HomePage.jsx with localStorage check and 3-second delay."
 
-  - task: "Hero Section"
+  - task: "Promo Popup on Scroll"
     implemented: true
-    working: true
-    file: "/app/frontend/src/components/HeroSection.jsx"
+    working: "NA"
+    file: "/app/frontend/src/pages/HomePage.jsx"
     stuck_count: 0
     priority: "high"
-    needs_retesting: false
+    needs_retesting: true
     status_history:
-        - working: true
+        - working: "NA"
         - agent: "testing"
-        - comment: "✅ PASSED - Hero section displays beautifully with background image, title 'CrissCustoms & WobArt', slogan 'WHERE LIGHT MEETS ART', and both CTA buttons ('Cere oferta GRATUITA' and 'Vezi portofoliu') are visible and functional."
+        - comment: "NEEDS TESTING - Promo popup (-10% discount) should appear when scrolling down. Implementation found with scroll event listener and sessionStorage check."
 
-  - task: "About Section"
+  - task: "Chat Widget for Guests"
     implemented: true
-    working: true
-    file: "/app/frontend/src/components/AboutSection.jsx"
+    working: "NA"
+    file: "/app/frontend/src/pages/HomePage.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+        - agent: "testing"
+        - comment: "NEEDS TESTING - Chat widget (floating button in bottom-right) should open and work with simulated bot responses. Implementation found with MessageCircle icon and chat functionality."
+
+  - task: "Enhanced Admin Dashboard"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/pages/AdminPage.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+        - agent: "testing"
+        - comment: "NEEDS TESTING - Enhanced admin dashboard with detailed stats cards, revenue chart, service distribution pie chart, recent projects, pending reviews, quick actions, and comprehensive sidebar navigation."
+
+  - task: "Enhanced User Dashboard"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/pages/DashboardPage.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+        - agent: "testing"
+        - comment: "NEEDS TESTING - Enhanced user dashboard with project details, progress stages visualization, photo gallery with tabs (Before/During/After), messages section, payment status, and comprehensive navigation."
+
+  - task: "Glassmorphism Effects"
+    implemented: true
+    working: "NA"
+    file: "/app/frontend/src/App.css"
     stuck_count: 0
     priority: "medium"
-    needs_retesting: false
+    needs_retesting: true
     status_history:
-        - working: true
+        - working: "NA"
         - agent: "testing"
-        - comment: "✅ PASSED - About section is visible with stats display working correctly. Found 5+ stats elements as expected (500+, 400+, 8+, 100% format)."
+        - comment: "NEEDS TESTING - Glassmorphism effects should be visible throughout dashboards including glass-card styling, sidebar glass effect, header glass effect, and modal glass effects."
 
-  - task: "Services Section"
+  - task: "Mobile Dashboard Responsiveness"
     implemented: true
-    working: true
-    file: "/app/frontend/src/components/ServicesSection.jsx"
+    working: "NA"
+    file: "/app/frontend/src/pages/AdminPage.jsx"
     stuck_count: 0
-    priority: "high"
-    needs_retesting: false
+    priority: "medium"
+    needs_retesting: true
     status_history:
-        - working: true
+        - working: "NA"
         - agent: "testing"
-        - comment: "✅ PASSED - All 6 service cards are visible and functional: FULL WRAP, PARTIAL, RECLAMA, FARURI/STOPURI, PPF, CUSTOM. Hover effects work perfectly, showing detailed descriptions and neon glow effects."
-
-  - task: "Portfolio Section"
-    implemented: true
-    working: true
-    file: "/app/frontend/src/components/PortfolioSection.jsx"
-    stuck_count: 0
-    priority: "high"
-    needs_retesting: false
-    status_history:
-        - working: true
-        - agent: "testing"
-        - comment: "Minor: Portfolio gallery displays with 12 portfolio items and all 5 filter buttons (Toate, Full Wrap, PPF, Partial, Custom Design) are visible. Filter button clicking has overlay interception issues and lightbox functionality needs attention, but core gallery display works."
-
-  - task: "Contact Form"
-    implemented: true
-    working: true
-    file: "/app/frontend/src/components/ContactSection.jsx"
-    stuck_count: 0
-    priority: "high"
-    needs_retesting: false
-    status_history:
-        - working: true
-        - agent: "testing"
-        - comment: "✅ PASSED - Contact form works perfectly. All fields (name, email, phone, service dropdown, vehicle, message) accept input correctly. Form validation and submission work flawlessly with success message 'Mesaj trimis cu succes! Te vom contacta in cel mai scurt timp posibil.' displayed."
+        - comment: "NEEDS TESTING - Mobile responsiveness for both admin and user dashboards on mobile viewport (390x844)."
 
   - task: "Authentication Flow"
     implemented: true
@@ -189,41 +201,17 @@ frontend:
         - agent: "testing"
         - comment: "✅ PASSED - Login page accessible via navbar. Admin credentials (admin@crisscustoms.ro / admin123) work perfectly, redirecting to /admin. Client credentials (client@test.ro / client123) work perfectly, redirecting to /dashboard. Demo credentials are clearly displayed on login page."
 
-  - task: "Admin Dashboard"
-    implemented: true
-    working: true
-    file: "/app/frontend/src/pages/AdminPage.jsx"
-    stuck_count: 0
-    priority: "high"
-    needs_retesting: false
-    status_history:
-        - working: true
-        - agent: "testing"
-        - comment: "✅ PASSED - Admin dashboard displays perfectly with 'Admin Panel' title, 8+ stats cards showing revenue, projects, customers, and ratings. Sidebar navigation includes Dashboard, Proiecte, Clienti, Oferte, Recenzii, Inventar, Setari. Recent projects and pending reviews sections are functional."
-
-  - task: "Client Dashboard"
-    implemented: true
-    working: true
-    file: "/app/frontend/src/pages/DashboardPage.jsx"
-    stuck_count: 0
-    priority: "high"
-    needs_retesting: false
-    status_history:
-        - working: true
-        - agent: "testing"
-        - comment: "✅ PASSED - Client dashboard works excellently with welcome message 'Bine ai venit, Ion!', 5 stats cards (active projects, total projects, total invested), project progress tracking with BMW M4 Competition and Mercedes AMG GT projects showing detailed progress bars, stages, and costs. All 5 sidebar navigation items work."
-
-  - task: "Mobile Responsiveness"
+  - task: "Homepage Navigation"
     implemented: true
     working: true
     file: "/app/frontend/src/components/Navbar.jsx"
     stuck_count: 0
-    priority: "medium"
+    priority: "high"
     needs_retesting: false
     status_history:
         - working: true
         - agent: "testing"
-        - comment: "Minor: Mobile viewport (390x844) shows responsive layout correctly. Mobile menu button is visible and hero section adapts well. CTA buttons remain accessible. Mobile menu has overlay interception issues preventing full testing, but core responsive layout works."
+        - comment: "✅ PASSED - All navigation menu items (Acasa, Despre, Servicii, Portofoliu, Proces, Preturi, FAQ, Contact) are visible and functional. Smooth scrolling to sections works perfectly. Login button in navbar is accessible."
 
 metadata:
   created_by: "testing_agent"
