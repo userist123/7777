@@ -1,0 +1,85 @@
+{
+  "theme": "dark",
+  "archetype": "Archetype 4 (Swiss & High-Contrast) + Tactical Precision",
+  "design_philosophy": "A hyper-functional, sterile, and professional command center for traders. Focuses entirely on data legibility, rapid interaction, and clear emotional separation of wins and losses using strict color coding. No excessive gradients, just crisp borders, flat surfaces, and monospace data.",
+  "colors": {
+    "background": "#0f1117",
+    "card_background": "#1a1d29",
+    "border": "#2a2d3a",
+    "text_primary": "#e2e8f0",
+    "text_secondary": "#8892a4",
+    "accent": "#3b82f6",
+    "status": {
+      "success": {
+        "bg": "#0d2818",
+        "text": "#4ade80",
+        "border": "#166534"
+      },
+      "danger": {
+        "bg": "#2d0a0a",
+        "text": "#f87171",
+        "border": "#991b1b"
+      },
+      "warning": {
+        "bg": "#2d2305",
+        "text": "#fbbf24",
+        "border": "#854d0e"
+      }
+    },
+    "sidebar_background": "#0d0f15"
+  },
+  "typography": {
+    "heading_font": "Chivo",
+    "body_font": "IBM Plex Sans",
+    "monospace_font": "JetBrains Mono",
+    "rules": {
+      "headings": "Tight tracking, no pure white (use text-primary #e2e8f0)",
+      "numbers": "MUST use monospace font (JetBrains Mono) for all prices, percentages, and tabular data to prevent jitter.",
+      "labels": "Uppercase, tracking-widest, text-xs, text-secondary"
+    }
+  },
+  "spacing_and_layout": {
+    "grid_base": "4px",
+    "card_padding": "16px (p-4)",
+    "border_radius": {
+      "cards": "8px (rounded-lg)",
+      "buttons": "6px (rounded-md)",
+      "inputs": "4px (rounded)"
+    },
+    "layout_strategy": "Control Room Grid. Dense, strict alignment. Collapsible sidebar (w-64 expanded, w-16 collapsed) with seamless transition. Main content area uses min-h-screen with p-4 to p-6."
+  },
+  "components": {
+    "cards": "Flat background (#1a1d29), 1px solid border (#2a2d3a). No shadows in dark mode.",
+    "buttons": "Accent buttons use #3b82f6. Win/Loss/Wait action buttons use semantic status colors.",
+    "tables": "Dense rows, monospace numbers, hover state subtly highlights row background.",
+    "charts": "Recharts. Use accent color for main equity curve. Red/Green for win/loss bar charts. Tooltips must match card background and border."
+  },
+  "motion": {
+    "sidebar": "transition-all duration-300 ease-in-out",
+    "hover_states": "Subtle background lightening (bg-white/5) or border color shift.",
+    "modals": "Fade in with slight scale up (Framer Motion or standard Shadcn transitions)."
+  },
+  "image_urls": {
+    "empty_state": {
+      "url": "https://static.prod-images.emergentagent.com/jobs/8e067a42-e6e1-40c2-bd27-619661d4a549/images/2db8b1365cc11410a41eeff788b027d9b13ccc7d62dca4dc09d210656bfdff68.png",
+      "description": "Minimalist flat vector illustration of an empty line chart and clipboard for empty states in tables or charts",
+      "category": "illustration"
+    },
+    "logo": {
+      "url": "https://static.prod-images.emergentagent.com/jobs/8e067a42-e6e1-40c2-bd27-619661d4a549/images/8bab2a75fb98cb24f7b72697e63e4b9b899388dc355caa782ea5ae2e9e574d61.png",
+      "description": "Abstract geometric logo for the trading app",
+      "category": "logo"
+    }
+  },
+  "instructions_to_main_agent": [
+    "Extend tailwind.config.js with the precise hex codes provided: background #0f1117, surface #1a1d29, border #2a2d3a, accent #3b82f6, text-primary #e2e8f0, text-secondary #8892a4, sidebar #0d0f15, and the success/danger/warning background/text/border values.",
+    "Set the HTML/body background to #0f1117.",
+    "Install and use 'lucide-react' for all icons.",
+    "Install and use 'recharts' for Dashboard and Strategy Report charts. Ensure chart grids use the #2a2d3a border color.",
+    "Implement a persistent layout with a collapsible sidebar. Sidebar background is #0d0f15.",
+    "In Trade Log, format numbers with the monospace font class. Use semantic color blocks (bg, text, border) for Win/Loss/BE pills.",
+    "Build 8 routing views or conditional rendering tabs: Dashboard, Trade Log, Strategy Report, Account Report, Market Analysis, Asset Detail, Calendar, Calculators.",
+    "Market Analysis tab should have a structure ready to accept live API data (mock the data fetching for now but build the UI components).",
+    "Ensure 'data-testid' attributes are added to all interactive elements (buttons, inputs, tabs)."
+  ]
+}
