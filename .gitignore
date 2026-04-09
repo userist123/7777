@@ -13,4 +13,5 @@ next.user-config.*
 # Common ignores
 node_modules
 .next/
-.DS_Store
+.DS_Storefrontend/node_modules/.cache/default-development/4.pack
+frontend/node_modules/.cache/default-development/0.pack

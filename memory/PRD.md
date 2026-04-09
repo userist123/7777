@@ -44,11 +44,16 @@ Site-ul premium pentru WOB ART - atelier de car wrapping, PPF și detailing din 
 - Asymmetric card grid (hero 2x2, configurator 2x3, feature cards 1x1, gallery 2x2)
 - Responsive grid (4 cols desktop, 2 cols tablet, 1 col mobile)
 
-**Car Color Configurator**
+**Car Color Configurator - Sports Car SVG**
 - 8 wrap colors (Matte Black, Satin Blue, Gloss White, Military Green, Color Shift, Neon Orange, Brushed Steel, Cherry Red)
-- SVG car visualization with dynamic color gradients
-- 360° auto-rotation with hover pause
-- Price estimate display
+- Porsche 911-style sports car SVG visualization cu:
+  - 3 unghiuri de vizualizare (front-side, side, back-side)
+  - Roți detailiate cu spițe
+  - Faruri LED neon (cyan față, roșu spate)
+  - Reflexii metalice și gradient
+  - Umbră realistă sub mașină
+- Auto-rotare la fiecare 3 secunde (cu pause on hover/click)
+- Price estimate display cu gradient text
 
 **Advanced Interaction Patterns**
 - Custom cursor with trailing effect (desktop only)

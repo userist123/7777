@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from 'framer-motion';
-import { X, Zap, Activity, Users, Shield, Star, ArrowRight, Play, ChevronRight, Sparkles, Award } from 'lucide-react';
+import { X, Zap, Activity, Users, Shield, Star, ArrowRight, Play, ChevronRight, Sparkles, Award, Pause, RotateCcw } from 'lucide-react';
 
 // Wrap Colors for Configurator
 const WRAP_COLORS = [
@@ -406,114 +406,284 @@ function ImageModal({ isOpen, onClose, imageSrc, imageAlt, originRect }) {
   );
 }
 
-// Car Color Configurator Component
+// Car Color Configurator Component - Enhanced Sports Car SVG
 function CarConfigurator() {
   const [selectedColor, setSelectedColor] = useState(WRAP_COLORS[0]);
   const [isRotating, setIsRotating] = useState(true);
-  const [rotation, setRotation] = useState(0);
+  const [viewAngle, setViewAngle] = useState(0); // 0 = front-side, 1 = side, 2 = back-side
   const containerRef = useRef(null);
 
   useEffect(() => {
     if (!isRotating) return;
     const interval = setInterval(() => {
-      setRotation(prev => (prev + 0.5) % 360);
-    }, 50);
+      setViewAngle(prev => (prev + 1) % 3);
+    }, 3000);
     return () => clearInterval(interval);
   }, [isRotating]);
+
+  // Porsche 911-style sports car SVG paths for different angles
+  const carViews = {
+    0: { // Front-side view
+      body: "M30,130 Q30,125 40,120 L80,115 L120,90 Q140,75 180,70 L280,70 Q320,75 340,90 L370,115 Q380,120 380,130 L380,150 L30,150 Z",
+      roof: "M125,90 Q145,70 175,68 L245,68 Q290,70 310,90 L280,95 L130,95 Z",
+      windows: "M130,92 L280,92 Q295,80 285,72 L175,72 Q150,75 140,85 Z",
+      hood: "M80,115 L120,90 L145,92 L145,115 Z",
+      trunk: "M295,92 L340,115 L295,115 Z",
+      bumperF: "M30,130 L30,145 L80,145 L85,130 Z",
+      bumperR: "M320,130 L380,130 L380,145 L320,145 Z",
+      lightF: "M40,125 Q45,120 55,122 L70,125 L70,135 L45,135 Z",
+      lightR: "M340,125 L365,125 L365,135 L340,135 Q335,130 340,125 Z"
+    },
+    1: { // Pure side view  
+      body: "M20,130 L40,130 L50,110 L100,85 L140,70 L280,70 L330,85 L370,110 L380,130 L400,130 L400,155 L20,155 Z",
+      roof: "M145,70 L275,70 L275,72 L145,72 Z",
+      windows: "M105,87 L135,72 L265,72 L300,87 Z",
+      hood: "M50,110 L100,85 L105,87 L60,112 Z",
+      trunk: "M300,87 L330,85 L345,110 L305,110 Z",
+      bumperF: "M20,130 L20,150 L50,150 L55,130 Z",
+      bumperR: "M360,130 L400,130 L400,150 L365,150 Z",
+      lightF: "M25,128 L45,128 L45,140 L25,140 Z",
+      lightR: "M370,128 L395,128 L395,140 L370,140 Z"
+    },
+    2: { // Back-side view
+      body: "M30,130 Q30,125 40,120 L70,115 L100,95 Q140,80 180,75 L290,75 Q330,80 350,95 L370,115 Q380,120 380,130 L380,150 L30,150 Z",
+      roof: "M120,95 Q145,75 175,73 L265,73 Q300,75 320,95 L290,100 L140,100 Z",
+      windows: "M145,97 L290,97 Q305,85 295,77 L175,77 Q155,80 150,90 Z",
+      hood: "M70,115 L100,95 L120,97 L90,115 Z",
+      trunk: "M310,97 L350,95 L345,115 L315,115 Z",
+      bumperF: "M30,130 L30,145 L70,145 L75,130 Z",
+      bumperR: "M335,130 L380,130 L380,145 L340,145 Z",
+      lightF: "M35,127 L60,127 L60,138 L35,138 Z",
+      lightR: "M350,127 L375,127 L375,138 L350,138 Z"
+    }
+  };
+
+  const currentView = carViews[viewAngle];
 
   return (
     <div className="relative h-full min-h-[500px] flex flex-col">
       {/* Car Display */}
       <div 
         ref={containerRef}
-        className="flex-1 relative flex items-center justify-center overflow-hidden"
+        className="flex-1 relative flex items-center justify-center overflow-hidden cursor-grab active:cursor-grabbing"
         onMouseEnter={() => setIsRotating(false)}
         onMouseLeave={() => setIsRotating(true)}
+        onClick={() => setViewAngle((viewAngle + 1) % 3)}
       >
         {/* Background glow based on color */}
         <div 
-          className="absolute inset-0 opacity-30 blur-[100px] transition-all duration-700"
+          className="absolute inset-0 opacity-40 blur-[120px] transition-all duration-1000"
           style={{ background: selectedColor.gradient }}
         />
         
-        {/* Car silhouette with color overlay */}
+        {/* Grid floor effect */}
+        <div className="absolute bottom-10 left-0 right-0 h-32 opacity-20"
+          style={{
+            background: 'linear-gradient(to bottom, transparent, rgba(0,245,255,0.1))',
+            maskImage: 'linear-gradient(to bottom, transparent, black)'
+          }}
+        />
+
+        {/* Sports Car SVG */}
         <motion.div
-          animate={{ rotateY: rotation }}
-          transition={{ duration: 0.05 }}
-          className="relative w-full max-w-lg"
-          style={{ perspective: '1000px', transformStyle: 'preserve-3d' }}
+          key={viewAngle}
+          initial={{ opacity: 0, scale: 0.9, rotateY: -30 }}
+          animate={{ opacity: 1, scale: 1, rotateY: 0 }}
+          exit={{ opacity: 0, scale: 0.9, rotateY: 30 }}
+          transition={{ duration: 0.5, ease: 'easeOut' }}
+          className="relative w-full max-w-xl px-4"
         >
-          <svg viewBox="0 0 400 200" className="w-full h-auto drop-shadow-2xl">
-            {/* Car body shape */}
+          <svg viewBox="0 0 420 180" className="w-full h-auto drop-shadow-2xl" style={{ filter: 'drop-shadow(0 20px 40px rgba(0,0,0,0.5))' }}>
             <defs>
-              <linearGradient id={`carGradient-${selectedColor.id}`} x1="0%" y1="0%" x2="100%" y2="100%">
+              {/* Car body gradient */}
+              <linearGradient id={`carBody-${selectedColor.id}`} x1="0%" y1="0%" x2="0%" y2="100%">
                 <stop offset="0%" style={{ stopColor: selectedColor.hex, stopOpacity: 1 }} />
-                <stop offset="50%" style={{ stopColor: selectedColor.hex, stopOpacity: 0.9 }} />
+                <stop offset="40%" style={{ stopColor: selectedColor.hex, stopOpacity: 0.95 }} />
                 <stop offset="100%" style={{ stopColor: selectedColor.hex, stopOpacity: 0.7 }} />
               </linearGradient>
-              <filter id="glow">
-                <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+              
+              {/* Metallic shine */}
+              <linearGradient id="metalShine" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" style={{ stopColor: 'rgba(255,255,255,0.4)' }} />
+                <stop offset="50%" style={{ stopColor: 'rgba(255,255,255,0)' }} />
+                <stop offset="100%" style={{ stopColor: 'rgba(255,255,255,0.2)' }} />
+              </linearGradient>
+              
+              {/* Glass gradient */}
+              <linearGradient id="glassGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" style={{ stopColor: '#1a1a2e', stopOpacity: 0.9 }} />
+                <stop offset="100%" style={{ stopColor: '#0a0a15', stopOpacity: 0.95 }} />
+              </linearGradient>
+              
+              {/* Glow filter */}
+              <filter id="carGlow" x="-50%" y="-50%" width="200%" height="200%">
+                <feGaussianBlur stdDeviation="4" result="blur"/>
                 <feMerge>
-                  <feMergeNode in="coloredBlur"/>
+                  <feMergeNode in="blur"/>
                   <feMergeNode in="SourceGraphic"/>
                 </feMerge>
               </filter>
+              
+              {/* Neon glow for lights */}
+              <filter id="neonGlow">
+                <feGaussianBlur stdDeviation="3" result="blur"/>
+                <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+              </filter>
             </defs>
             
-            {/* Car body */}
+            {/* Shadow under car */}
+            <ellipse cx="210" cy="165" rx="150" ry="10" fill="rgba(0,0,0,0.4)" />
+            
+            {/* Main car body */}
             <path 
-              d="M50,140 L70,140 L80,120 L140,100 L180,80 L260,80 L320,100 L350,120 L360,140 L370,140 L370,160 L50,160 Z"
-              fill={`url(#carGradient-${selectedColor.id})`}
+              d={currentView.body}
+              fill={`url(#carBody-${selectedColor.id})`}
               className="transition-all duration-700"
-              filter="url(#glow)"
+            />
+            
+            {/* Metallic overlay */}
+            <path 
+              d={currentView.body}
+              fill="url(#metalShine)"
+              className="transition-all duration-700"
+              opacity="0.3"
+            />
+            
+            {/* Roof */}
+            <path 
+              d={currentView.roof}
+              fill={`url(#carBody-${selectedColor.id})`}
+              className="transition-all duration-700"
             />
             
             {/* Windows */}
             <path 
-              d="M145,102 L175,85 L255,85 L290,102 L145,102"
-              fill="rgba(0,0,0,0.7)"
-              stroke="rgba(255,255,255,0.3)"
+              d={currentView.windows}
+              fill="url(#glassGradient)"
+              stroke="rgba(255,255,255,0.2)"
+              strokeWidth="0.5"
+              className="transition-all duration-500"
+            />
+            
+            {/* Hood panel line */}
+            <path 
+              d={currentView.hood}
+              fill="none"
+              stroke="rgba(0,0,0,0.3)"
               strokeWidth="1"
             />
             
-            {/* Wheels */}
-            <circle cx="110" cy="155" r="25" fill="#1a1a1a" stroke="#333" strokeWidth="3" />
-            <circle cx="110" cy="155" r="15" fill="#222" />
-            <circle cx="110" cy="155" r="5" fill="#444" />
+            {/* Trunk panel line */}
+            <path 
+              d={currentView.trunk}
+              fill="none"
+              stroke="rgba(0,0,0,0.3)"
+              strokeWidth="1"
+            />
             
-            <circle cx="300" cy="155" r="25" fill="#1a1a1a" stroke="#333" strokeWidth="3" />
-            <circle cx="300" cy="155" r="15" fill="#222" />
-            <circle cx="300" cy="155" r="5" fill="#444" />
+            {/* Front wheel */}
+            <g className="transition-all duration-500">
+              <circle cx="100" cy="148" r="28" fill="#0a0a0a" />
+              <circle cx="100" cy="148" r="24" fill="#1a1a1a" stroke="#333" strokeWidth="2" />
+              <circle cx="100" cy="148" r="18" fill="#222" />
+              {/* Wheel spokes */}
+              {[0, 72, 144, 216, 288].map((angle, i) => (
+                <line key={i} 
+                  x1={100 + 8 * Math.cos(angle * Math.PI / 180)} 
+                  y1={148 + 8 * Math.sin(angle * Math.PI / 180)}
+                  x2={100 + 16 * Math.cos(angle * Math.PI / 180)} 
+                  y2={148 + 16 * Math.sin(angle * Math.PI / 180)}
+                  stroke="#444" strokeWidth="3" strokeLinecap="round"
+                />
+              ))}
+              <circle cx="100" cy="148" r="6" fill="#333" />
+              <circle cx="100" cy="148" r="3" fill="#555" />
+            </g>
             
-            {/* Headlights */}
-            <ellipse cx="60" cy="135" rx="8" ry="6" fill="#00f5ff" opacity="0.8" filter="url(#glow)" />
-            <ellipse cx="360" cy="135" rx="8" ry="6" fill="#ff3b30" opacity="0.8" filter="url(#glow)" />
+            {/* Rear wheel */}
+            <g className="transition-all duration-500">
+              <circle cx="320" cy="148" r="28" fill="#0a0a0a" />
+              <circle cx="320" cy="148" r="24" fill="#1a1a1a" stroke="#333" strokeWidth="2" />
+              <circle cx="320" cy="148" r="18" fill="#222" />
+              {[0, 72, 144, 216, 288].map((angle, i) => (
+                <line key={i} 
+                  x1={320 + 8 * Math.cos(angle * Math.PI / 180)} 
+                  y1={148 + 8 * Math.sin(angle * Math.PI / 180)}
+                  x2={320 + 16 * Math.cos(angle * Math.PI / 180)} 
+                  y2={148 + 16 * Math.sin(angle * Math.PI / 180)}
+                  stroke="#444" strokeWidth="3" strokeLinecap="round"
+                />
+              ))}
+              <circle cx="320" cy="148" r="6" fill="#333" />
+              <circle cx="320" cy="148" r="3" fill="#555" />
+            </g>
             
-            {/* Reflection line */}
-            <line x1="90" y1="115" x2="340" y2="115" stroke="rgba(255,255,255,0.2)" strokeWidth="1" />
+            {/* Front lights - Cyan LED */}
+            <path d={currentView.lightF} fill="#00f5ff" opacity="0.9" filter="url(#neonGlow)" />
+            <path d={currentView.lightF} fill="white" opacity="0.6" />
+            
+            {/* Rear lights - Red LED */}
+            <path d={currentView.lightR} fill="#ff2d55" opacity="0.9" filter="url(#neonGlow)" />
+            <path d={currentView.lightR} fill="#ff6b6b" opacity="0.5" />
+            
+            {/* Reflection highlight on body */}
+            <path
+              d="M60,120 Q120,100 200,100 Q280,100 340,115"
+              fill="none"
+              stroke="rgba(255,255,255,0.15)"
+              strokeWidth="2"
+              strokeLinecap="round"
+            />
+            
+            {/* Door line */}
+            <line x1="190" y1="95" x2="200" y2="130" stroke="rgba(0,0,0,0.2)" strokeWidth="1" />
           </svg>
         </motion.div>
 
-        {/* 360 indicator */}
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 text-xs text-[#71717a]">
-          <div className="w-6 h-6 rounded-full border border-[#00f5ff]/30 flex items-center justify-center">
-            <motion.div
-              animate={{ rotate: 360 }}
-              transition={{ repeat: Infinity, duration: 4, ease: 'linear' }}
-              className="w-3 h-3"
-            >
-              <Play size={12} className="text-[#00f5ff]" />
-            </motion.div>
+        {/* View indicator & controls */}
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-4">
+          <button 
+            onClick={(e) => { e.stopPropagation(); setIsRotating(!isRotating); }}
+            className={`w-8 h-8 rounded-full flex items-center justify-center transition-all ${
+              isRotating ? 'bg-[#00f5ff]/20 text-[#00f5ff]' : 'bg-white/10 text-[#71717a]'
+            }`}
+          >
+            {isRotating ? <Pause size={14} /> : <Play size={14} />}
+          </button>
+          
+          <div className="flex items-center gap-2 text-xs text-[#71717a] bg-black/40 backdrop-blur-sm px-3 py-1.5 rounded-full">
+            <RotateCcw size={12} className="text-[#00f5ff]" />
+            <span>Click pentru rotire</span>
           </div>
-          <span>Rotație 360° • Hover pentru pauză</span>
+          
+          {/* View dots */}
+          <div className="flex gap-1.5">
+            {[0, 1, 2].map(i => (
+              <button
+                key={i}
+                onClick={(e) => { e.stopPropagation(); setViewAngle(i); }}
+                className={`w-2 h-2 rounded-full transition-all ${
+                  viewAngle === i ? 'bg-[#00f5ff] w-4' : 'bg-white/30'
+                }`}
+              />
+            ))}
+          </div>
         </div>
       </div>
 
       {/* Color Selection */}
-      <div className="p-6 border-t border-white/10">
+      <div className="p-6 border-t border-white/10 bg-black/20">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="font-display text-lg text-white">Alege Culoarea</h3>
-          <span className="text-sm text-[#00f5ff]">{selectedColor.name}</span>
+          <h3 className="font-display text-lg text-white">Alege Culoarea Wrap</h3>
+          <motion.span 
+            key={selectedColor.id}
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-sm font-mono"
+            style={{ color: selectedColor.hex === '#f5f5f5' ? '#00f5ff' : selectedColor.hex }}
+          >
+            {selectedColor.name}
+          </motion.span>
         </div>
         
         <div className="flex gap-3 flex-wrap">
@@ -521,20 +691,24 @@ function CarConfigurator() {
             <motion.button
               key={color.id}
               onClick={() => setSelectedColor(color)}
-              whileHover={{ scale: 1.1 }}
+              whileHover={{ scale: 1.15 }}
               whileTap={{ scale: 0.95 }}
               className={`
-                w-10 h-10 rounded-full relative transition-all duration-300
+                w-11 h-11 rounded-xl relative transition-all duration-300 shadow-lg
                 ${selectedColor.id === color.id ? 'ring-2 ring-[#00f5ff] ring-offset-2 ring-offset-[#0a0f1e]' : ''}
               `}
-              style={{ background: color.gradient }}
+              style={{ 
+                background: color.gradient,
+                boxShadow: selectedColor.id === color.id ? `0 0 25px ${color.hex}50` : 'none'
+              }}
               aria-label={color.name}
               data-hover
             >
               {selectedColor.id === color.id && (
                 <motion.div
                   layoutId="selected-color"
-                  className="absolute inset-0 rounded-full border-2 border-white"
+                  className="absolute inset-0 rounded-xl border-2 border-white/50"
+                  transition={{ type: 'spring', bounce: 0.3 }}
                 />
               )}
             </motion.button>
@@ -542,14 +716,18 @@ function CarConfigurator() {
         </div>
 
         {/* Price estimate */}
-        <div className="mt-6 p-4 rounded-xl bg-white/5 border border-white/10">
+        <div className="mt-6 p-4 rounded-xl bg-gradient-to-r from-[#00f5ff]/10 to-[#7c3aed]/10 border border-[#00f5ff]/20">
           <div className="flex justify-between items-center">
-            <span className="text-[#a1a1aa]">Estimare wrap complet</span>
-            <span className="font-mono text-2xl text-[#00f5ff]">2.400 - 3.200 €</span>
+            <div>
+              <span className="text-[#a1a1aa] text-sm">Estimare wrap complet</span>
+              <p className="text-xs text-[#71717a] mt-1">
+                Preț final în funcție de vehicul
+              </p>
+            </div>
+            <span className="font-mono text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#00f5ff] to-[#7c3aed]">
+              2.400 - 3.200 €
+            </span>
           </div>
-          <p className="text-xs text-[#71717a] mt-2">
-            Preț final în funcție de marca și modelul vehiculului
-          </p>
         </div>
       </div>
     </div>
@@ -650,7 +828,7 @@ export default function FuturisticLanding() {
             </div>
           </BentoCard>
 
-          {/* Car Configurator Card */}
+          {/* Car Configurator Card - Enhanced SVG Version */}
           <BentoCard span={2} rowSpan={3} index={1} className="lg:col-span-2 lg:row-span-3">
             <div className="h-full -m-6">
               <div className="p-6 border-b border-white/10">
