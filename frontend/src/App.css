@@ -1,34 +1,35 @@
-.App-logo {
-    height: 40vmin;
-    pointer-events: none;
+/* Trade Tracker App Styles */
+.font-mono-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-variant-numeric: tabular-nums;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-    .App-logo {
-        animation: App-logo-spin infinite 20s linear;
-    }
+.trade-card-hover {
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.trade-card-hover:hover {
+  border-color: #3b82f6;
+  box-shadow: 0 0 12px rgba(59, 130, 246, 0.15);
 }
 
-.App-header {
-    background-color: #0f0f10;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    font-size: calc(10px + 2vmin);
-    color: white;
+.mini-chart-win {
+  stroke: #4ade80;
+  fill: url(#winGradient);
+}
+.mini-chart-loss {
+  stroke: #f87171;
+  fill: url(#lossGradient);
 }
 
-.App-link {
-    color: #61dafb;
+/* Sticky filter bar */
+.filter-bar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  backdrop-filter: blur(8px);
 }
 
-@keyframes App-logo-spin {
-    from {
-        transform: rotate(0deg);
-    }
-    to {
-        transform: rotate(360deg);
-    }
+/* Gauge styles */
+.gauge-arc {
+  transition: stroke-dashoffset 0.8s ease-in-out;
 }
