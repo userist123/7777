@@ -700,15 +700,18 @@ export default function FuturisticLanding() {
                     key={i}
                     className="relative rounded-xl overflow-hidden cursor-pointer group"
                     whileHover={{ scale: 1.05, zIndex: 10 }}
-                    onClick={() => setModalImage(img)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setModalImage(img);
+                    }}
                     data-hover
                   >
                     <img 
                       src={img.src} 
                       alt={img.alt}
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 pointer-events-none"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-3">
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-3 pointer-events-none">
                       <span className="text-xs text-white">{img.alt}</span>
                     </div>
                   </motion.div>
