@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/context/AuthContext';
@@ -179,11 +179,7 @@ export default function AdminPanel() {
   const [statusFilter, setStatusFilter] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
 
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     setLoading(true);
     try {
       const [statsRes, ordersRes, usersRes, quotesRes] = await Promise.all([
@@ -196,12 +192,16 @@ export default function AdminPanel() {
       setOrders(ordersRes.data);
       setUsers(usersRes.data);
       setQuotes(quotesRes.data);
-    } catch (error) {
+    } catch {
       toast.error('Eroare la încărcarea datelor');
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
   const handleLogout = async () => {
     await logout();

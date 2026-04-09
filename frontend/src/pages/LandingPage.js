@@ -397,17 +397,16 @@ function PortfolioSection() {
         </motion.div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {portfolio.map((item, i) => (
+          {portfolio.map((item) => (
             <motion.div
-              key={i}
+              key={`${item.brand}-${item.model}`}
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ delay: i * 0.1 }}
               className="group relative aspect-[4/3] rounded-2xl overflow-hidden glass cursor-pointer"
             >
               <img
-                src={`https://images.unsplash.com/photo-${1600000000000 + i * 1000}?w=600&h=450&fit=crop&q=80`}
+                src={`https://images.unsplash.com/photo-${1600000000000 + portfolio.indexOf(item) * 1000}?w=600&h=450&fit=crop&q=80`}
                 alt={`${item.brand} ${item.model}`}
                 className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                 onError={(e) => { e.target.src = 'https://static.prod-images.emergentagent.com/jobs/557de4fb-5a61-415a-bff2-a49d2d8adece/images/9d17908be93deda312c67c3c3083d5166f0898e99f2026b2c21a4ee88d4951c4.png'; }}
@@ -444,18 +443,17 @@ function ReviewsSection() {
         </motion.div>
 
         <div className="grid md:grid-cols-2 gap-6">
-          {REVIEWS.map((review, i) => (
+          {REVIEWS.map((review) => (
             <motion.div
-              key={i}
+              key={`${review.name}-${review.car}`}
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ delay: i * 0.1 }}
               className="glass rounded-2xl p-8 border-glow transition-all"
             >
               <div className="flex items-center gap-1 mb-4">
                 {[...Array(review.stars)].map((_, j) => (
-                  <Star key={j} size={16} fill="#FFB000" className="text-[#FFB000]" />
+                  <Star key={`star-${j}`} size={16} fill="#FFB000" className="text-[#FFB000]" />
                 ))}
               </div>
               <p className="text-[#A1A1AA] mb-6 leading-relaxed">"{review.text}"</p>

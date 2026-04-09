@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/context/AuthContext';
@@ -198,7 +198,8 @@ function NewOrderModal({ onClose, onSuccess }) {
             className="btn-primary flex-1 flex items-center justify-center gap-1.5 disabled:opacity-50"
             data-testid="order-next-btn"
           >
-            {loading ? <Loader2 size={16} className="animate-spin" /> : step < 3 ? 'Continuă' : 'Trimite cererea'}
+            {loading && <Loader2 size={16} className="animate-spin" />}
+            {!loading && (step < 3 ? 'Continuă' : 'Trimite cererea')}
             {!loading && <ArrowRight size={16} />}
           </button>
         </div>
@@ -318,6 +319,29 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [showNewOrder, setShowNewOrder] = useState(false);
 
+  const fetchOrders = useCallback(async () => {
+    try {
+      const response = await axios.get(`${API}/api/orders/`, { withCredentials: true });
+      setOrders(response.data);
+    } catch {
+      // Error fetching orders - handled silently
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const checkPaymentStatus = useCallback(async (sessionId) => {
+    try {
+      const response = await axios.get(`${API}/api/payments/status/${sessionId}`, { withCredentials: true });
+      if (response.data.payment_status === 'paid') {
+        toast.success('Plată efectuată cu succes!');
+        fetchOrders();
+      }
+    } catch {
+      // Payment status check failed - handled silently
+    }
+  }, [fetchOrders]);
+
   useEffect(() => {
     fetchOrders();
     
@@ -327,30 +351,7 @@ export default function Dashboard() {
     if (payment === 'success' && sessionId) {
       checkPaymentStatus(sessionId);
     }
-  }, [searchParams]);
-
-  const fetchOrders = async () => {
-    try {
-      const response = await axios.get(`${API}/api/orders/`, { withCredentials: true });
-      setOrders(response.data);
-    } catch (error) {
-      console.error('Error fetching orders:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const checkPaymentStatus = async (sessionId) => {
-    try {
-      const response = await axios.get(`${API}/api/payments/status/${sessionId}`, { withCredentials: true });
-      if (response.data.payment_status === 'paid') {
-        toast.success('Plată efectuată cu succes!');
-        fetchOrders();
-      }
-    } catch (error) {
-      console.error('Payment status check error:', error);
-    }
-  };
+  }, [searchParams, fetchOrders, checkPaymentStatus]);
 
   const handlePayDeposit = async (orderNumber) => {
     try {

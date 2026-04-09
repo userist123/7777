@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 
 const AuthContext = createContext(null);
@@ -9,22 +9,22 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    checkAuth();
-  }, []);
-
-  const checkAuth = async () => {
+  const checkAuth = useCallback(async () => {
     try {
       const response = await axios.get(`${API}/api/auth/me`, { 
         withCredentials: true 
       });
       setUser(response.data);
-    } catch (error) {
+    } catch {
       setUser(null);
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    checkAuth();
+  }, [checkAuth]);
 
   const login = async (email, password) => {
     const response = await axios.post(
@@ -49,8 +49,8 @@ export function AuthProvider({ children }) {
   const logout = async () => {
     try {
       await axios.post(`${API}/api/auth/logout`, {}, { withCredentials: true });
-    } catch (error) {
-      console.error('Logout error:', error);
+    } catch {
+      // Logout failed silently - user will be cleared anyway
     }
     setUser(null);
   };

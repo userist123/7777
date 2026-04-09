@@ -31,9 +31,12 @@ export default function LoginPage() {
       }
     } catch (error) {
       const detail = error.response?.data?.detail;
-      const message = typeof detail === 'string' ? detail : 
-        Array.isArray(detail) ? detail.map(e => e.msg).join(' ') : 
-        'Eroare la autentificare';
+      let message = 'Eroare la autentificare';
+      if (typeof detail === 'string') {
+        message = detail;
+      } else if (Array.isArray(detail)) {
+        message = detail.map(e => e.msg).join(' ');
+      }
       toast.error(message);
     } finally {
       setLoading(false);

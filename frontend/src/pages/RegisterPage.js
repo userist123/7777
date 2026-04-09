@@ -48,9 +48,12 @@ export default function RegisterPage() {
       navigate('/dashboard');
     } catch (error) {
       const detail = error.response?.data?.detail;
-      const message = typeof detail === 'string' ? detail : 
-        Array.isArray(detail) ? detail.map(e => e.msg).join(' ') : 
-        'Eroare la înregistrare';
+      let message = 'Eroare la înregistrare';
+      if (typeof detail === 'string') {
+        message = detail;
+      } else if (Array.isArray(detail)) {
+        message = detail.map(e => e.msg).join(' ');
+      }
       toast.error(message);
     } finally {
       setLoading(false);

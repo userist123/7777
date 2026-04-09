@@ -74,7 +74,7 @@ function CustomCursor() {
       {/* Trail dots */}
       {[...Array(5)].map((_, i) => (
         <div
-          key={i}
+          key={`trail-${i}`}
           ref={el => trailRefs.current[i] = el}
           className="fixed top-0 left-0 w-3 h-3 rounded-full pointer-events-none z-[9999] mix-blend-difference"
           style={{
@@ -586,9 +586,9 @@ function CarConfigurator() {
               <circle cx="100" cy="148" r="28" fill="#0a0a0a" />
               <circle cx="100" cy="148" r="24" fill="#1a1a1a" stroke="#333" strokeWidth="2" />
               <circle cx="100" cy="148" r="18" fill="#222" />
-              {/* Wheel spokes */}
-              {[0, 72, 144, 216, 288].map((angle, i) => (
-                <line key={i} 
+            {/* Wheel spokes */}
+              {[0, 72, 144, 216, 288].map((angle) => (
+                <line key={`front-spoke-${angle}`} 
                   x1={100 + 8 * Math.cos(angle * Math.PI / 180)} 
                   y1={148 + 8 * Math.sin(angle * Math.PI / 180)}
                   x2={100 + 16 * Math.cos(angle * Math.PI / 180)} 
@@ -605,8 +605,8 @@ function CarConfigurator() {
               <circle cx="320" cy="148" r="28" fill="#0a0a0a" />
               <circle cx="320" cy="148" r="24" fill="#1a1a1a" stroke="#333" strokeWidth="2" />
               <circle cx="320" cy="148" r="18" fill="#222" />
-              {[0, 72, 144, 216, 288].map((angle, i) => (
-                <line key={i} 
+              {[0, 72, 144, 216, 288].map((angle) => (
+                <line key={`rear-spoke-${angle}`} 
                   x1={320 + 8 * Math.cos(angle * Math.PI / 180)} 
                   y1={148 + 8 * Math.sin(angle * Math.PI / 180)}
                   x2={320 + 16 * Math.cos(angle * Math.PI / 180)} 
@@ -658,12 +658,12 @@ function CarConfigurator() {
           
           {/* View dots */}
           <div className="flex gap-1.5">
-            {[0, 1, 2].map(i => (
+            {[0, 1, 2].map(viewNum => (
               <button
-                key={i}
-                onClick={(e) => { e.stopPropagation(); setViewAngle(i); }}
+                key={`view-${viewNum}`}
+                onClick={(e) => { e.stopPropagation(); setViewAngle(viewNum); }}
                 className={`w-2 h-2 rounded-full transition-all ${
-                  viewAngle === i ? 'bg-[#00f5ff] w-4' : 'bg-white/30'
+                  viewAngle === viewNum ? 'bg-[#00f5ff] w-4' : 'bg-white/30'
                 }`}
               />
             ))}
@@ -873,9 +873,9 @@ export default function FuturisticLanding() {
             <div className="h-full flex flex-col">
               <h3 className="font-display text-xl mb-4">Portofoliu</h3>
               <div className="flex-1 grid grid-cols-3 gap-3">
-                {galleryImages.map((img, i) => (
+                {galleryImages.map((img) => (
                   <motion.div
-                    key={i}
+                    key={img.alt}
                     className="relative rounded-xl overflow-hidden cursor-pointer group"
                     whileHover={{ scale: 1.05, zIndex: 10 }}
                     onClick={(e) => {
@@ -915,7 +915,7 @@ export default function FuturisticLanding() {
               <div className="flex gap-1 h-8">
                 {[...Array(12)].map((_, i) => (
                   <motion.div
-                    key={i}
+                    key={`bar-${i}`}
                     className="flex-1 bg-[#00ffa3]/20 rounded-full overflow-hidden"
                     initial={{ scaleY: 0.2 }}
                     animate={{ scaleY: [0.2, Math.random() * 0.8 + 0.2, 0.2] }}
@@ -954,17 +954,16 @@ export default function FuturisticLanding() {
                   { name: 'Alexandru M.', text: 'Absolut impecabil!', rating: 5 },
                   { name: 'Mihai D.', text: 'Finisaj perfect', rating: 5 },
                   { name: 'Cristina P.', text: 'Recomand cu încredere', rating: 5 },
-                ].map((review, i) => (
+                ].map((review) => (
                   <motion.div
-                    key={i}
+                    key={review.name}
                     className="flex-shrink-0 w-48 p-4 rounded-xl bg-white/5 border border-white/10"
                     initial={{ opacity: 0, x: 20 }}
                     whileInView={{ opacity: 1, x: 0 }}
-                    transition={{ delay: i * 0.1 }}
                   >
                     <div className="flex gap-0.5 mb-2">
                       {[...Array(review.rating)].map((_, j) => (
-                        <Star key={j} size={12} className="text-[#ffb000]" fill="#ffb000" />
+                        <Star key={`star-${review.name}-${j}`} size={12} className="text-[#ffb000]" fill="#ffb000" />
                       ))}
                     </div>
                     <p className="text-sm text-white mb-2">"{review.text}"</p>
