@@ -164,8 +164,9 @@ async def get_settings():
     if not settings:
         default = {"key": "app_settings", "startingBalance": 10000, "currency": "USD", "darkMode": True}
         await db.settings.insert_one(default)
-        return {k: v for k, v in default.items() if k != "key"}
-    return {k: v for k, v in settings.items() if k != "key"}
+        # Refetch without _id to avoid ObjectId serialization
+        settings = await db.settings.find_one({"key": "app_settings"}, {"_id": 0})
+    return {"startingBalance": settings.get("startingBalance", 10000), "currency": settings.get("currency", "USD"), "darkMode": settings.get("darkMode", True)}
 
 @api_router.put("/settings")
 async def update_settings(settings: SettingsModel):

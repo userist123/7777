@@ -67,6 +67,7 @@ export default function AddTradeModal({ open, onClose, onAdd }) {
       <DialogContent className="bg-[#1a1d29] border-[#2a2d3a] text-trade-text-primary max-w-lg max-h-[85vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="font-heading">Add New {form.type}</DialogTitle>
+          <p className="text-sm text-trade-text-secondary">Fill in the details below</p>
         </DialogHeader>
         <div className="space-y-4 mt-2">
           <div className="grid grid-cols-2 gap-3">
