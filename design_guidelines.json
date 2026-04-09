@@ -1,0 +1,96 @@
+{
+  "project_name": "WOB ART",
+  "domain": "Premium Automotive Wrapping & Detailing",
+  "theme": "dark",
+  "archetype": "7 (Electric & Neon) blended with 5 (Jewel & Luxury)",
+  "visual_mood": "Futuristic, holographic, high-end automotive, cutting-edge 2026 tech, dark mode with neon iridescent accents.",
+  "typography": {
+    "heading": {
+      "family": "Unbounded",
+      "weights": ["400", "700", "900"],
+      "usage": "Hero headers, major section titles, numbers. Use tracking-tight."
+    },
+    "body": {
+      "family": "Outfit",
+      "weights": ["300", "400", "500", "600"],
+      "usage": "Paragraphs, labels, descriptions. Highly legible, geometric."
+    },
+    "mono": {
+      "family": "JetBrains Mono",
+      "weights": ["400", "700"],
+      "usage": "Order IDs, license plates, timestamps, technical specs, dashboard metrics."
+    }
+  },
+  "colors": {
+    "background": "#050505",
+    "surface": "#0F0F13",
+    "surface_glass": "rgba(15, 15, 19, 0.6)",
+    "border": "rgba(255, 255, 255, 0.1)",
+    "border_glow": "rgba(0, 240, 255, 0.4)",
+    "primary": "#00F0FF",
+    "secondary": "#BD00FF",
+    "accent": "#00FFA3",
+    "text": {
+      "primary": "#FFFFFF",
+      "secondary": "#A1A1AA",
+      "muted": "#71717A"
+    },
+    "status": {
+      "success": "#00FFA3",
+      "warning": "#FFB000",
+      "danger": "#FF003C"
+    }
+  },
+  "surface_strategies": {
+    "glassmorphism_2_0": {
+      "classes": "bg-black/40 backdrop-blur-2xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.4)]",
+      "usage": "Main cards, navigation headers, dashboard widgets. Must have blurred fluid background behind it to create the 'holo' effect."
+    },
+    "solid_tech": {
+      "classes": "bg-[#0F0F13] border border-white/5",
+      "usage": "Input fields, deep background areas, secondary containers."
+    }
+  },
+  "spacing_and_layout": {
+    "philosophy": "Generous spacing, optical alignment, aggressive asymmetry on marketing pages, strict dense grids on dashboards.",
+    "marketing_grid": "The Tetris Grid. Mix col-span-12, col-span-8, col-span-4 to create tension. Break symmetry.",
+    "dashboard_grid": "The Control Room. Dense, data-heavy, col-span-3 or col-span-4. Every pixel utilized.",
+    "radii": "Use rounded-2xl for main floating panels to mimic glass shards, rounded-md for inner buttons/inputs."
+  },
+  "motion_and_interactions": {
+    "philosophy": "Things appearing and disappearing. Smooth, staggered reveals. High-tech feel.",
+    "reveal": "framer-motion: initial={{ opacity: 0, y: 30, filter: 'blur(10px)' }} whileInView={{ opacity: 1, y: 0, filter: 'blur(0px)' }} transition={{ duration: 0.6, ease: 'easeOut' }}",
+    "hover": "Subtle border glow transition: hover:border-cyan-500/50 hover:shadow-[0_0_15px_rgba(0,240,255,0.2)]",
+    "loader": "ASCII art or pure CSS geometric pulsing loader. Avoid standard spinners."
+  },
+  "components_strategy": {
+    "marketing": "Pure Tailwind HTML + Framer Motion. Avoid Shadcn cards to maintain creative freedom. Use overlapping divs and absolute positioning.",
+    "dashboard": "Shadcn UI deeply customized to match the Glassmorphism 2.0 aesthetic. Strip default white backgrounds, replace with black/40 backdrop-blur.",
+    "forms": "Use Shadcn inputs and selects but with solid_tech surface styling. Glowing bottom borders on focus."
+  },
+  "media": {
+    "hero_background": {
+      "url": "https://static.prod-images.emergentagent.com/jobs/557de4fb-5a61-415a-bff2-a49d2d8adece/images/7dfb4bbdffcda1e7b859ff6c0f440f0e08ee777884f5c39d49eef82da727d30e.png",
+      "description": "Futuristic auto studio. Use as the absolute background for the landing page hero section, overlaid with bg-black/50 gradient."
+    },
+    "holo_fluid_background": {
+      "url": "https://static.prod-images.emergentagent.com/jobs/557de4fb-5a61-415a-bff2-a49d2d8adece/images/8f762d8075a0263aa1e303bb8157256732349c9578c1f8697ae054989647b5ec.png",
+      "description": "Abstract iridescent fluid. Use this fixed in the background of the dashboard/admin panel. When glassmorphism cards sit on top, it creates the 'holo effect'."
+    },
+    "service_ppf": {
+      "url": "https://static.prod-images.emergentagent.com/jobs/557de4fb-5a61-415a-bff2-a49d2d8adece/images/9d17908be93deda312c67c3c3083d5166f0898e99f2026b2c21a4ee88d4951c4.png",
+      "description": "Macro shot of PPF application. Use in the services/portfolio section with a slight parallax or hover zoom effect."
+    }
+  },
+  "instructions_to_main_agent": [
+    "Install and configure 'Unbounded', 'Outfit', and 'JetBrains Mono' from Google Fonts.",
+    "Install 'framer-motion' for all appearance/disappearance animations ('lucruri care dispar apar').",
+    "Install 'lucide-react' for icons.",
+    "Structure the app into three main zones: 1) Marketing Landing Page, 2) Client Dashboard (tracking comenzi), 3) Admin Panel.",
+    "Landing Page Hero: Use 'hero_background' with a heavy dark gradient. Typography must be massive (Unbounded text-6xl+).",
+    "Holo Effect Implementation: Place the 'holo_fluid_background' as an absolute, fixed layer behind the app content. All overlaying cards/panels must use 'bg-white/5 backdrop-blur-2xl' or 'bg-black/40 backdrop-blur-2xl' so the iridescent fluid bleeds through, creating a futuristic glass UI.",
+    "Dashboard: Needs real-time tracking look. Use the 'JetBrains Mono' font for order IDs and license plates. Use vibrant status colors (Cyan, Emerald, Amber) for progress indicators.",
+    "Admin Panel: Table-dense but keeps the glassmorphism theme. Include Stripe payment status and WhatsApp notification triggers.",
+    "Ensure all interactive elements have data-testid attributes for testing."
+  ]
+}
