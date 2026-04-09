@@ -4,9 +4,10 @@ import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion'
 import axios from 'axios';
 import { toast } from 'sonner';
 import { useAuth } from '@/context/AuthContext';
+import FuturisticLanding from '@/components/FuturisticLanding';
 import {
   ArrowRight, Star, Check, ChevronRight, ChevronDown, Play,
-  Phone, Mail, MapPin, Instagram, Facebook, MessageCircle,
+  Phone, Mail, MapPin, Globe, Send, MessageCircle,
   Shield, Zap, Award, Clock, Car, Sparkles, Loader2
 } from 'lucide-react';
 
@@ -659,13 +660,13 @@ function Footer() {
         </div>
         
         <div className="flex items-center gap-6">
-          <a href="#" className="text-[#71717A] hover:text-[#00F0FF] transition-colors">
-            <Instagram size={20} />
+          <a href="#" className="text-[#71717A] hover:text-[#00F0FF] transition-colors" aria-label="Globe">
+            <Globe size={20} />
           </a>
-          <a href="#" className="text-[#71717A] hover:text-[#00F0FF] transition-colors">
-            <Facebook size={20} />
+          <a href="#" className="text-[#71717A] hover:text-[#00F0FF] transition-colors" aria-label="Send">
+            <Send size={20} />
           </a>
-          <a href="https://wa.me/40700000000" className="text-[#71717A] hover:text-[#00FFA3] transition-colors">
+          <a href="https://wa.me/40700000000" className="text-[#71717A] hover:text-[#00FFA3] transition-colors" aria-label="WhatsApp">
             <MessageCircle size={20} />
           </a>
         </div>
@@ -681,9 +682,12 @@ function Footer() {
 // Main Landing Page
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-[#050505]" data-testid="landing-page">
+    <div className="min-h-screen bg-[#050810]" data-testid="landing-page">
       <Navbar />
-      <HeroSection />
+      {/* Futuristic Bento Grid Section */}
+      <div className="pt-20">
+        <FuturisticLanding />
+      </div>
       <ServicesSection />
       <PortfolioSection />
       <ReviewsSection />
