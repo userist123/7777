@@ -297,7 +297,7 @@ async def reset_password(data: ResetPasswordRequest):
 
 # ==================== ORDERS ENDPOINTS ====================
 
-@orders_router.post("/")
+@orders_router.post("/", status_code=201)
 async def create_order(data: OrderCreate, user: dict = Depends(get_current_user)):
     order_count = await db.orders.count_documents({})
     order_number = f"WOB-{datetime.now().year}-{str(order_count + 1).zfill(4)}"
