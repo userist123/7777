@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,43 @@ const SignalBadge = ({ signal }) => {
     WAIT: "bg-trade-warn-bg text-trade-warn-text border-trade-warn-border",
   };
   return <Badge className={`${cfg[signal] || cfg.WAIT} border text-sm px-3 py-1`}>{signal}</Badge>;
+};
+
+const CompetitorsTable = ({ assets, currentAsset }) => {
+  const competitors = useMemo(
+    () => assets.filter(a => a.category === currentAsset.category).slice(0, 6),
+    [assets, currentAsset.category]
+  );
+  return (
+    <Card className="bg-[#1a1d29] border-[#2a2d3a]">
+      <CardHeader className="pb-2 p-4">
+        <CardTitle className="text-sm font-heading text-trade-text-primary">Same Category Comparison</CardTitle>
+      </CardHeader>
+      <CardContent className="p-0 overflow-x-auto">
+        <table className="w-full text-xs">
+          <thead>
+            <tr className="border-b border-[#2a2d3a]">
+              {["Asset", "Price", "Day%", "RSI", "Signal", "Trend"].map(h => (
+                <th key={h} className="text-[10px] uppercase tracking-widest text-trade-text-secondary text-left py-2 px-3">{h}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {competitors.map(a => (
+              <tr key={a.name} className={`border-b border-[#2a2d3a] hover:bg-white/5 ${a.name === currentAsset.name ? "bg-trade-accent/5" : ""}`}>
+                <td className="py-2 px-3 font-heading font-bold">{a.name}</td>
+                <td className="py-2 px-3 font-mono-num">{formatNumber(a.price, a.price > 100 ? 2 : 4)}</td>
+                <td className={`py-2 px-3 font-mono-num ${a.change_day >= 0 ? "text-trade-win-text" : "text-trade-loss-text"}`}>{a.change_day}%</td>
+                <td className="py-2 px-3 font-mono-num">{a.rsi?.toFixed(1)}</td>
+                <td className="py-2 px-3"><Badge className={`text-[10px] ${a.signal === "BUY" ? "bg-trade-win-bg text-trade-win-text" : a.signal === "SELL" ? "bg-trade-loss-bg text-trade-loss-text" : "bg-trade-warn-bg text-trade-warn-text"}`}>{a.signal}</Badge></td>
+                <td className="py-2 px-3 text-trade-text-secondary">{a.trend}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </CardContent>
+    </Card>
+  );
 };
 
 export default function AssetDetail({ marketData, loading, onFetch }) {
@@ -90,8 +127,8 @@ export default function AssetDetail({ marketData, loading, onFetch }) {
               </div>
               {asset.confluences?.length > 0 && (
                 <div className="mt-3 flex flex-wrap gap-1.5">
-                  {asset.confluences.map((c, i) => (
-                    <Badge key={i} className="bg-trade-accent/10 text-trade-accent border-trade-accent/20 border text-xs">{c}</Badge>
+                  {asset.confluences.map((c) => (
+                    <Badge key={c} className="bg-trade-accent/10 text-trade-accent border-trade-accent/20 border text-xs">{c}</Badge>
                   ))}
                 </div>
               )}

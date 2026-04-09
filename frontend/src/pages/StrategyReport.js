@@ -20,14 +20,14 @@ const CustomTooltip = ({ active, payload, label }) => {
 export default function StrategyReport({ trades }) {
   const strategyStats = useMemo(() => getStrategyStats(trades), [trades]);
 
-  const best = strategyStats.length > 0 ? strategyStats.reduce((a, b) => a.totalPnl > b.totalPnl ? a : b) : null;
-  const worst = strategyStats.length > 0 ? strategyStats.reduce((a, b) => a.totalPnl < b.totalPnl ? a : b) : null;
+  const best = useMemo(() => strategyStats.length > 0 ? strategyStats.reduce((a, b) => a.totalPnl > b.totalPnl ? a : b) : null, [strategyStats]);
+  const worst = useMemo(() => strategyStats.length > 0 ? strategyStats.reduce((a, b) => a.totalPnl < b.totalPnl ? a : b) : null, [strategyStats]);
 
-  const winRateData = strategyStats.map(s => ({
+  const winRateData = useMemo(() => strategyStats.map(s => ({
     strategy: s.strategy,
     winRate: Math.round(s.winRate * 10) / 10,
     avgPnl: s.totalTrades > 0 ? Math.round((s.totalPnl / s.totalTrades) * 100) / 100 : 0,
-  }));
+  })), [strategyStats]);
 
   // Build equity curves per strategy
   const equityData = useMemo(() => {
@@ -124,9 +124,9 @@ export default function StrategyReport({ trades }) {
                 <YAxis tick={{ fill: "#8892a4", fontSize: 10 }} tickLine={false} axisLine={false} domain={[0, 100]} />
                 <Tooltip content={<CustomTooltip />} />
                 <Bar dataKey="winRate" name="Win Rate %" radius={[3, 3, 0, 0]}>
-                  {winRateData.map((entry, i) => {
+                  {winRateData.map((entry) => {
                     const color = STRATEGY_COLORS[entry.strategy] || "#3b82f6";
-                    return <rect key={i} fill={color} />;
+                    return <rect key={entry.strategy} fill={color} />;
                   })}
                 </Bar>
               </BarChart>
@@ -146,8 +146,8 @@ export default function StrategyReport({ trades }) {
                 <YAxis tick={{ fill: "#8892a4", fontSize: 10 }} tickLine={false} axisLine={false} tickFormatter={v => `$${v}`} />
                 <Tooltip content={<CustomTooltip />} />
                 <Bar dataKey="avgPnl" name="Avg P/L" radius={[3, 3, 0, 0]}>
-                  {winRateData.map((entry, i) => (
-                    <rect key={i} fill={entry.avgPnl >= 0 ? "#4ade80" : "#f87171"} />
+                  {winRateData.map((entry) => (
+                    <rect key={entry.strategy} fill={entry.avgPnl >= 0 ? "#4ade80" : "#f87171"} />
                   ))}
                 </Bar>
               </BarChart>

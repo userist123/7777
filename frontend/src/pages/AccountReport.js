@@ -9,8 +9,8 @@ const CustomTooltip = ({ active, payload, label }) => {
   return (
     <div className="bg-[#1a1d29] border border-[#2a2d3a] rounded-lg p-3 shadow-lg">
       <p className="text-xs text-trade-text-secondary mb-1">{label}</p>
-      {payload.map((p, i) => (
-        <p key={i} className="font-mono-num text-sm" style={{ color: p.color }}>{p.name}: ${typeof p.value === "number" ? p.value.toFixed(2) : p.value}</p>
+      {payload.map((p) => (
+        <p key={p.dataKey || p.name} className="font-mono-num text-sm" style={{ color: p.color }}>{p.name}: ${typeof p.value === "number" ? p.value.toFixed(2) : p.value}</p>
       ))}
     </div>
   );

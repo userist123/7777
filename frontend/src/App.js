@@ -57,60 +57,36 @@ function App() {
       setLoading(true);
       const res = await axios.get(`${API}/trades`);
       setTrades(res.data);
-    } catch (e) {
-      console.error("Error fetching trades:", e);
-    } finally {
-      setLoading(false);
-    }
+    } catch (_) { /* network error — UI shows empty state */ }
+    finally { setLoading(false); }
   }, []);
 
   const seedTrades = useCallback(async () => {
     try {
       await axios.post(`${API}/trades/seed`);
       await fetchTrades();
-    } catch (e) {
-      console.error("Error seeding:", e);
-    }
+    } catch (_) { /* seed endpoint failed — user can add trades manually */ }
   }, [fetchTrades]);
 
-  useEffect(() => {
-    const init = async () => {
-      await fetchTrades();
-    };
-    init();
-  }, [fetchTrades]);
+  useEffect(() => { fetchTrades(); }, [fetchTrades]);
 
   useEffect(() => {
-    if (!loading && trades.length === 0) {
-      seedTrades();
-    }
+    if (!loading && trades.length === 0) { seedTrades(); }
   }, [loading, trades.length, seedTrades]);
 
   const addTrade = useCallback(async (trade) => {
-    try {
-      await axios.post(`${API}/trades`, trade);
-      await fetchTrades();
-    } catch (e) {
-      console.error("Error adding trade:", e);
-    }
+    try { await axios.post(`${API}/trades`, trade); await fetchTrades(); }
+    catch (_) { /* handled by empty state */ }
   }, [fetchTrades]);
 
   const updateTrade = useCallback(async (id, trade) => {
-    try {
-      await axios.put(`${API}/trades/${id}`, trade);
-      await fetchTrades();
-    } catch (e) {
-      console.error("Error updating trade:", e);
-    }
+    try { await axios.put(`${API}/trades/${id}`, trade); await fetchTrades(); }
+    catch (_) { /* handled by empty state */ }
   }, [fetchTrades]);
 
   const deleteTrade = useCallback(async (id) => {
-    try {
-      await axios.delete(`${API}/trades/${id}`);
-      await fetchTrades();
-    } catch (e) {
-      console.error("Error deleting trade:", e);
-    }
+    try { await axios.delete(`${API}/trades/${id}`); await fetchTrades(); }
+    catch (_) { /* handled by empty state */ }
   }, [fetchTrades]);
 
   const fetchMarketData = useCallback(async () => {
@@ -118,11 +94,8 @@ function App() {
       setMarketLoading(true);
       const res = await axios.get(`${API}/market-data`);
       setMarketData(res.data);
-    } catch (e) {
-      console.error("Error fetching market data:", e);
-    } finally {
-      setMarketLoading(false);
-    }
+    } catch (_) { /* market data unavailable — UI shows empty state */ }
+    finally { setMarketLoading(false); }
   }, []);
 
   const filteredTrades = useMemo(() => {

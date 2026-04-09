@@ -54,8 +54,8 @@ const CustomTooltip = ({ active, payload, label }) => {
   return (
     <div className="bg-[#1a1d29] border border-[#2a2d3a] rounded-lg p-3 shadow-lg">
       <p className="text-xs text-trade-text-secondary mb-1">{label}</p>
-      {payload.map((p, i) => (
-        <p key={i} className="font-mono-num text-sm" style={{ color: p.color }}>
+      {payload.map((p) => (
+        <p key={p.dataKey || p.name} className="font-mono-num text-sm" style={{ color: p.color }}>
           {p.name}: {typeof p.value === "number" ? formatNumber(p.value) : p.value}
         </p>
       ))}
@@ -87,8 +87,10 @@ export default function Dashboard({ trades, allTrades, filters, setFilters }) {
   const uniquePairs = useMemo(() => [...new Set(allTrades.filter(t => t.type === "Trade").map(t => t.pair))], [allTrades]);
   const uniqueStrategies = useMemo(() => [...new Set(allTrades.filter(t => t.type === "Trade" && t.strategy).map(t => t.strategy))], [allTrades]);
 
-  const depositTotal = trades.filter(t => t.type === "Deposit").reduce((s, t) => s + (t.amount || 0), 0);
-  const balanceDelta = depositTotal > 0 ? ((stats.balance - depositTotal) / depositTotal) * 100 : 0;
+  const { depositTotal, balanceDelta } = useMemo(() => {
+    const dep = trades.filter(t => t.type === "Deposit").reduce((s, t) => s + (t.amount || 0), 0);
+    return { depositTotal: dep, balanceDelta: dep > 0 ? ((stats.balance - dep) / dep) * 100 : 0 };
+  }, [trades, stats.balance]);
 
   return (
     <div className="space-y-6" data-testid="dashboard-page">
@@ -155,7 +157,7 @@ export default function Dashboard({ trades, allTrades, filters, setFilters }) {
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie data={pairBreakdown} cx="50%" cy="50%" innerRadius={45} outerRadius={75} paddingAngle={2} dataKey="value">
-                  {pairBreakdown.map((entry, i) => <Cell key={i} fill={entry.color} />)}
+                  {pairBreakdown.map((entry) => <Cell key={entry.name} fill={entry.color} />)}
                 </Pie>
                 <Tooltip content={<CustomTooltip />} />
                 <Legend wrapperStyle={{ fontSize: 10, color: "#8892a4" }} />

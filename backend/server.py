@@ -6,7 +6,7 @@ import os
 import logging
 from pathlib import Path
 from pydantic import BaseModel, Field, ConfigDict
-from typing import List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 import uuid
 from datetime import datetime, timezone
 
@@ -175,214 +175,247 @@ async def update_settings(settings: SettingsModel):
     await db.settings.update_one({"key": "app_settings"}, {"$set": settings_dict}, upsert=True)
     return settings_dict
 
+import numpy as np
+import yfinance as yf
+from typing import Dict, Any, Tuple
+
+TICKERS_MAP: Dict[str, Dict[str, str]] = {
+    "S&P 500": {"ticker": "^GSPC", "category": "Indici"},
+    "NASDAQ": {"ticker": "^IXIC", "category": "Indici"},
+    "US30": {"ticker": "^DJI", "category": "Indici"},
+    "BTC/USD": {"ticker": "BTC-USD", "category": "Crypto"},
+    "ETH/USD": {"ticker": "ETH-USD", "category": "Crypto"},
+    "SOL/USD": {"ticker": "SOL-USD", "category": "Crypto"},
+    "XAU/USD": {"ticker": "GC=F", "category": "Materii Prime"},
+    "XAG/USD": {"ticker": "SI=F", "category": "Materii Prime"},
+    "EUR/USD": {"ticker": "EURUSD=X", "category": "Valute"},
+    "GBP/USD": {"ticker": "GBPUSD=X", "category": "Valute"},
+    "USD/JPY": {"ticker": "JPY=X", "category": "Valute"},
+    "VIX": {"ticker": "^VIX", "category": "Indici"},
+}
+
+
+def _compute_price_changes(close: np.ndarray, current_price: float) -> Tuple[float, float, float]:
+    """Compute day/week/month percentage changes."""
+    prev_close = float(close[-2]) if len(close) > 1 else current_price
+    change_day = ((current_price - prev_close) / prev_close) * 100
+    change_week = ((current_price - float(close[-5])) / float(close[-5])) * 100 if len(close) >= 5 else 0.0
+    change_month = ((current_price - float(close[-20])) / float(close[-20])) * 100 if len(close) >= 20 else 0.0
+    return change_day, change_week, change_month
+
+
+def _compute_rsi(close: np.ndarray) -> float:
+    """Compute 14-period RSI."""
+    deltas = np.diff(close[-15:])
+    gains = np.where(deltas > 0, deltas, 0)
+    losses_arr = np.where(deltas < 0, -deltas, 0)
+    avg_gain = float(np.mean(gains)) if len(gains) > 0 else 0.0
+    avg_loss = float(np.mean(losses_arr)) if len(losses_arr) > 0 else 0.001
+    rs = avg_gain / avg_loss if avg_loss != 0 else 100.0
+    return 100.0 - (100.0 / (1.0 + rs))
+
+
+def _compute_moving_averages(close: np.ndarray, current_price: float) -> Tuple[float, float, float]:
+    """Compute MA20, MA50, MA200."""
+    ma20 = float(np.mean(close[-20:])) if len(close) >= 20 else current_price
+    ma50 = float(np.mean(close[-50:])) if len(close) >= 50 else current_price
+    ma200 = float(np.mean(close[-60:])) if len(close) >= 60 else current_price
+    return ma20, ma50, ma200
+
+
+def _compute_macd(close: np.ndarray, current_price: float) -> Tuple[float, float, float]:
+    """Compute MACD line, signal, and histogram."""
+    ema12 = float(np.mean(close[-12:])) if len(close) >= 12 else current_price
+    ema26 = float(np.mean(close[-26:])) if len(close) >= 26 else current_price
+    macd_val = ema12 - ema26
+    signal_val = macd_val * 0.8
+    histogram = macd_val - signal_val
+    return macd_val, signal_val, histogram
+
+
+def _compute_bollinger(close: np.ndarray, ma20: float) -> Tuple[float, float]:
+    """Compute Bollinger Bands upper/lower."""
+    bb_std = float(np.std(close[-20:])) if len(close) >= 20 else 0.0
+    return ma20 + 2 * bb_std, ma20 - 2 * bb_std
+
+
+def _compute_atr(high: np.ndarray, low: np.ndarray, close: np.ndarray) -> float:
+    """Compute Average True Range (14-period)."""
+    period = min(14, len(close) - 1)
+    if period <= 0:
+        return 0.0
+    tr_values = [
+        max(high[i] - low[i], abs(high[i] - close[i - 1]), abs(low[i] - close[i - 1]))
+        for i in range(-period, 0)
+    ]
+    return float(np.mean(tr_values))
+
+
+def _compute_stochastic(current_price: float, high: np.ndarray, low: np.ndarray) -> Tuple[float, float]:
+    """Compute Stochastic %K and %D."""
+    lowest_low = float(np.min(low[-14:])) if len(low) >= 14 else float(low[-1])
+    highest_high = float(np.max(high[-14:])) if len(high) >= 14 else float(high[-1])
+    stoch_k = ((current_price - lowest_low) / (highest_high - lowest_low) * 100) if highest_high != lowest_low else 50.0
+    return stoch_k, stoch_k * 0.9
+
+
+def _compute_signal(rsi: float, macd_val: float, histogram: float, ma20: float, ma50: float, rvol: float) -> Tuple[int, List[str], str]:
+    """Compute trading signal score, confluences, and signal label."""
+    score = 0
+    confluences: List[str] = []
+
+    if rsi < 35:
+        score += 2; confluences.append("RSI Oversold")
+    elif rsi < 45:
+        score += 1; confluences.append("RSI Low")
+    elif rsi > 75:
+        score -= 2; confluences.append("RSI Overbought")
+    elif rsi > 65:
+        score -= 1; confluences.append("RSI High")
+
+    if histogram > 0 and macd_val > 0:
+        score += 2; confluences.append("MACD Bullish")
+    elif histogram > 0:
+        score += 1; confluences.append("MACD Positive")
+    elif histogram < 0 and macd_val < 0:
+        score -= 2; confluences.append("MACD Bearish")
+    elif histogram < 0:
+        score -= 1; confluences.append("MACD Negative")
+
+    if ma20 > ma50:
+        score += 1; confluences.append("MA20 > MA50")
+    elif ma20 < ma50:
+        score -= 1; confluences.append("MA20 < MA50")
+
+    if rvol > 1.5:
+        score += 1; confluences.append("High Volume")
+    elif rvol < 0.6:
+        score -= 1; confluences.append("Low Volume")
+
+    if score >= 3:
+        signal = "BUY"
+    elif score <= -3:
+        signal = "SELL"
+    else:
+        signal = "WAIT"
+
+    return score, confluences, signal
+
+
+def _compute_entry_sl_tp(current_price: float, atr: float, signal: str) -> Tuple[float, float, float, float]:
+    """Compute entry, stop-loss, take-profit, and R:R ratio."""
+    if signal == "SELL":
+        sl = current_price + 1.5 * atr
+        tp = current_price - 3.0 * atr
+    else:
+        sl = current_price - 1.5 * atr
+        tp = current_price + 3.0 * atr
+
+    sl_dist = abs(sl - current_price)
+    rr = abs(tp - current_price) / sl_dist if sl_dist > 0 else 0.0
+    return current_price, sl, tp, rr
+
+
+def _vix_to_fear_greed(vix_value: float) -> int:
+    """Convert VIX value to a Fear & Greed index estimate."""
+    if vix_value <= 0:
+        return 55
+    if vix_value < 15:
+        return 80
+    if vix_value < 20:
+        return 60
+    if vix_value < 25:
+        return 45
+    if vix_value < 30:
+        return 30
+    return 15
+
+
+def _build_asset_data(name: str, info: Dict[str, str], hist) -> Optional[Dict[str, Any]]:
+    """Process a single ticker's history into an asset data dict."""
+    if hist.empty:
+        return None
+
+    close = hist["Close"].values
+    high = hist["High"].values
+    low = hist["Low"].values
+    volume = hist["Volume"].values if "Volume" in hist.columns else np.zeros(len(close))
+
+    current_price = float(close[-1])
+    open_price = float(hist["Open"].values[-1])
+    high_price = float(high[-1])
+    low_price = float(low[-1])
+
+    change_day, change_week, change_month = _compute_price_changes(close, current_price)
+    rsi = _compute_rsi(close)
+    ma20, ma50, ma200 = _compute_moving_averages(close, current_price)
+    macd_val, signal_val, histogram = _compute_macd(close, current_price)
+    bb_upper, bb_lower = _compute_bollinger(close, ma20)
+    atr = _compute_atr(high, low, close)
+    stoch_k, stoch_d = _compute_stochastic(current_price, high, low)
+
+    avg_vol = float(np.mean(volume[-20:])) if len(volume) >= 20 else 1.0
+    current_vol = float(volume[-1]) if len(volume) > 0 else 0.0
+    rvol = current_vol / avg_vol if avg_vol > 0 else 1.0
+
+    score, confluences, sig = _compute_signal(rsi, macd_val, histogram, ma20, ma50, rvol)
+    entry, sl, tp, rr = _compute_entry_sl_tp(current_price, atr, sig)
+    probability = min(90, 35 + len(confluences) * 10 + (5 if rvol > 1.2 else 0))
+
+    trend = "Bullish" if ma20 > ma50 else ("Bearish" if ma20 < ma50 else "Sideways")
+    ma_cross = "Golden Cross" if ma20 > ma200 and ma50 < ma200 else ("Death Cross" if ma20 < ma200 and ma50 > ma200 else "None")
+    macd_cross = "Bullish" if histogram > 0 else "Bearish"
+
+    return {
+        "name": name, "ticker": info["ticker"], "category": info["category"],
+        "price": round(current_price, 4), "open": round(open_price, 4),
+        "high": round(high_price, 4), "low": round(low_price, 4), "close": round(current_price, 4),
+        "change_day": round(change_day, 2), "change_week": round(change_week, 2), "change_month": round(change_month, 2),
+        "volume": int(current_vol), "rvol": round(rvol, 2),
+        "rsi": round(rsi, 1), "ma20": round(ma20, 4), "ma50": round(ma50, 4), "ma200": round(ma200, 4),
+        "macd": round(macd_val, 4), "macd_signal": round(signal_val, 4), "macd_histogram": round(histogram, 4),
+        "macd_cross": macd_cross,
+        "bb_upper": round(bb_upper, 4), "bb_lower": round(bb_lower, 4), "atr": round(atr, 4),
+        "stoch_k": round(stoch_k, 1), "stoch_d": round(stoch_d, 1),
+        "signal": sig, "trend": trend, "ma_cross": ma_cross,
+        "score": score, "confluences": confluences,
+        "entry": round(entry, 4), "sl": round(sl, 4), "tp": round(tp, 4),
+        "rr": round(rr, 2), "probability": probability,
+    }
+
+
 @api_router.get("/market-data")
-async def get_market_data():
-    """Fetch market data using yfinance"""
+async def get_market_data() -> Dict[str, Any]:
+    """Fetch market data using yfinance and compute technical indicators."""
     try:
-        import yfinance as yf
-        import numpy as np
-        
-        tickers_map = {
-            "S&P 500": {"ticker": "^GSPC", "category": "Indici"},
-            "NASDAQ": {"ticker": "^IXIC", "category": "Indici"},
-            "US30": {"ticker": "^DJI", "category": "Indici"},
-            "BTC/USD": {"ticker": "BTC-USD", "category": "Crypto"},
-            "ETH/USD": {"ticker": "ETH-USD", "category": "Crypto"},
-            "SOL/USD": {"ticker": "SOL-USD", "category": "Crypto"},
-            "XAU/USD": {"ticker": "GC=F", "category": "Materii Prime"},
-            "XAG/USD": {"ticker": "SI=F", "category": "Materii Prime"},
-            "EUR/USD": {"ticker": "EURUSD=X", "category": "Valute"},
-            "GBP/USD": {"ticker": "GBPUSD=X", "category": "Valute"},
-            "USD/JPY": {"ticker": "JPY=X", "category": "Valute"},
-            "VIX": {"ticker": "^VIX", "category": "Indici"},
-        }
-        
-        assets = []
-        vix_value = 0
-        
-        for name, info in tickers_map.items():
+        assets: List[Dict[str, Any]] = []
+        vix_value = 0.0
+
+        for name, info in TICKERS_MAP.items():
             try:
-                tk = yf.Ticker(info["ticker"])
-                hist = tk.history(period="3mo")
-                if hist.empty:
+                hist = yf.Ticker(info["ticker"]).history(period="3mo")
+                asset_data = _build_asset_data(name, info, hist)
+                if asset_data is None:
                     continue
-                
-                close = hist["Close"].values
-                high = hist["High"].values
-                low = hist["Low"].values
-                volume = hist["Volume"].values if "Volume" in hist.columns else np.zeros(len(close))
-                
-                current_price = float(close[-1])
-                prev_close = float(close[-2]) if len(close) > 1 else current_price
-                open_price = float(hist["Open"].values[-1])
-                high_price = float(high[-1])
-                low_price = float(low[-1])
-                
-                # Change calculations
-                change_day = ((current_price - prev_close) / prev_close) * 100
-                change_week = ((current_price - float(close[-5])) / float(close[-5])) * 100 if len(close) >= 5 else 0
-                change_month = ((current_price - float(close[-20])) / float(close[-20])) * 100 if len(close) >= 20 else 0
-                
-                # RSI calculation
-                deltas = np.diff(close[-15:])
-                gains = np.where(deltas > 0, deltas, 0)
-                losses = np.where(deltas < 0, -deltas, 0)
-                avg_gain = np.mean(gains) if len(gains) > 0 else 0
-                avg_loss = np.mean(losses) if len(losses) > 0 else 0.001
-                rs = avg_gain / avg_loss if avg_loss != 0 else 100
-                rsi = 100 - (100 / (1 + rs))
-                
-                # Moving averages
-                ma20 = float(np.mean(close[-20:])) if len(close) >= 20 else current_price
-                ma50 = float(np.mean(close[-50:])) if len(close) >= 50 else current_price
-                ma200 = float(np.mean(close[-60:])) if len(close) >= 60 else current_price
-                
-                # MACD
-                ema12 = float(np.mean(close[-12:])) if len(close) >= 12 else current_price
-                ema26 = float(np.mean(close[-26:])) if len(close) >= 26 else current_price
-                macd_val = ema12 - ema26
-                signal_val = macd_val * 0.8
-                histogram = macd_val - signal_val
-                
-                # Bollinger Bands
-                bb_std = float(np.std(close[-20:])) if len(close) >= 20 else 0
-                bb_upper = ma20 + 2 * bb_std
-                bb_lower = ma20 - 2 * bb_std
-                
-                # ATR
-                tr_values = []
-                for i in range(-min(14, len(close)-1), 0):
-                    tr = max(high[i] - low[i], abs(high[i] - close[i-1]), abs(low[i] - close[i-1]))
-                    tr_values.append(tr)
-                atr = float(np.mean(tr_values)) if tr_values else 0
-                
-                # Stochastic
-                lowest_low = float(np.min(low[-14:])) if len(low) >= 14 else low_price
-                highest_high = float(np.max(high[-14:])) if len(high) >= 14 else high_price
-                stoch_k = ((current_price - lowest_low) / (highest_high - lowest_low) * 100) if highest_high != lowest_low else 50
-                stoch_d = stoch_k * 0.9
-                
-                # RVOL
-                avg_vol = float(np.mean(volume[-20:])) if len(volume) >= 20 else 1
-                current_vol = float(volume[-1]) if len(volume) > 0 else 0
-                rvol = current_vol / avg_vol if avg_vol > 0 else 1.0
-                
-                # Signal calculation
-                score = 0
-                confluences = []
-                if rsi < 35: score += 2; confluences.append("RSI Oversold")
-                elif rsi < 45: score += 1; confluences.append("RSI Low")
-                elif rsi > 75: score -= 2; confluences.append("RSI Overbought")
-                elif rsi > 65: score -= 1; confluences.append("RSI High")
-                
-                if histogram > 0 and macd_val > 0: score += 2; confluences.append("MACD Bullish")
-                elif histogram > 0: score += 1; confluences.append("MACD Positive")
-                elif histogram < 0 and macd_val < 0: score -= 2; confluences.append("MACD Bearish")
-                elif histogram < 0: score -= 1; confluences.append("MACD Negative")
-                
-                if ma20 > ma50: score += 1; confluences.append("MA20 > MA50")
-                if ma20 < ma50: score -= 1; confluences.append("MA20 < MA50")
-                
-                if rvol > 1.5: score += 1; confluences.append("High Volume")
-                elif rvol < 0.6: score -= 1; confluences.append("Low Volume")
-                
-                if score >= 3: signal = "BUY"
-                elif score <= -3: signal = "SELL"
-                else: signal = "WAIT"
-                
-                trend = "Bullish" if ma20 > ma50 else ("Bearish" if ma20 < ma50 else "Sideways")
-                ma_cross = "Golden Cross" if ma20 > ma200 and ma50 < ma200 else ("Death Cross" if ma20 < ma200 and ma50 > ma200 else "None")
-                macd_cross = "Bullish" if histogram > 0 else "Bearish"
-                
-                # Entry/SL/TP
-                if signal == "BUY":
-                    entry = current_price
-                    sl = current_price - 1.5 * atr
-                    tp = current_price + 3.0 * atr
-                elif signal == "SELL":
-                    entry = current_price
-                    sl = current_price + 1.5 * atr
-                    tp = current_price - 3.0 * atr
-                else:
-                    entry = current_price
-                    sl = current_price - 1.5 * atr
-                    tp = current_price + 3.0 * atr
-                
-                rr = abs(tp - entry) / abs(sl - entry) if abs(sl - entry) > 0 else 0
-                probability = min(90, 35 + len(confluences) * 10 + (5 if rvol > 1.2 else 0))
-                
                 if name == "VIX":
-                    vix_value = current_price
-                
-                asset_data = {
-                    "name": name,
-                    "ticker": info["ticker"],
-                    "category": info["category"],
-                    "price": round(current_price, 4),
-                    "open": round(open_price, 4),
-                    "high": round(high_price, 4),
-                    "low": round(low_price, 4),
-                    "close": round(current_price, 4),
-                    "change_day": round(change_day, 2),
-                    "change_week": round(change_week, 2),
-                    "change_month": round(change_month, 2),
-                    "volume": int(current_vol),
-                    "rvol": round(rvol, 2),
-                    "rsi": round(rsi, 1),
-                    "ma20": round(ma20, 4),
-                    "ma50": round(ma50, 4),
-                    "ma200": round(ma200, 4),
-                    "macd": round(macd_val, 4),
-                    "macd_signal": round(signal_val, 4),
-                    "macd_histogram": round(histogram, 4),
-                    "macd_cross": macd_cross,
-                    "bb_upper": round(bb_upper, 4),
-                    "bb_lower": round(bb_lower, 4),
-                    "atr": round(atr, 4),
-                    "stoch_k": round(stoch_k, 1),
-                    "stoch_d": round(stoch_d, 1),
-                    "signal": signal,
-                    "trend": trend,
-                    "ma_cross": ma_cross,
-                    "score": score,
-                    "confluences": confluences,
-                    "entry": round(entry, 4),
-                    "sl": round(sl, 4),
-                    "tp": round(tp, 4),
-                    "rr": round(rr, 2),
-                    "probability": probability,
-                }
+                    vix_value = asset_data["price"]
                 assets.append(asset_data)
             except Exception as e:
                 logger.error(f"Error fetching {name}: {e}")
-                continue
-        
-        fear_greed = 55
-        if vix_value > 0:
-            if vix_value < 15: fear_greed = 80
-            elif vix_value < 20: fear_greed = 60
-            elif vix_value < 25: fear_greed = 45
-            elif vix_value < 30: fear_greed = 30
-            else: fear_greed = 15
-        
+
+        fear_greed = _vix_to_fear_greed(vix_value)
+
         return {
             "assets": assets,
             "vix": round(vix_value, 2),
             "fear_greed": fear_greed,
             "timestamp": datetime.now(timezone.utc).isoformat(),
             "macro": {
-                "vix": round(vix_value, 2),
-                "fear_greed": fear_greed,
-                "fed_rate": 4.5,
-                "cpi": 2.8,
-                "unemployment": 4.1,
-                "yield_10y": 4.35,
-                "yield_2y": 4.15,
-                "usd_index": 104.2,
-            }
+                "vix": round(vix_value, 2), "fear_greed": fear_greed,
+                "fed_rate": 4.5, "cpi": 2.8, "unemployment": 4.1,
+                "yield_10y": 4.35, "yield_2y": 4.15, "usd_index": 104.2,
+            },
         }
-    except ImportError:
-        return {"error": "yfinance not installed", "assets": [], "timestamp": datetime.now(timezone.utc).isoformat()}
     except Exception as e:
         logger.error(f"Market data error: {e}")
         return {"error": str(e), "assets": [], "timestamp": datetime.now(timezone.utc).isoformat()}

@@ -1,5 +1,21 @@
 import { getPipMultiplier } from "./constants";
 
+const CRYPTO_TOKENS = ["BTC", "ETH", "SOL", "DOGE", "ADA", "XRP", "DOT", "ONDO", "WIF", "BNB", "ATOM", "HYPE", "CRO", "POL", "AVAX", "NEAR"];
+const isCryptoPair = (pair) => CRYPTO_TOKENS.some(token => pair.includes(token));
+
+const computePnlAmount = (priceDiff, pair, lotSize) => {
+  if (pair.includes("XAU")) return priceDiff * lotSize * 100;
+  if (pair.includes("XAG")) return priceDiff * lotSize * 5000;
+  if (isCryptoPair(pair)) return priceDiff * lotSize;
+  return priceDiff * lotSize * 100000;
+};
+
+const computeTradeStatus = (pnl, pnlPct, hasExitPrice) => {
+  if (!hasExitPrice) return "Open";
+  if (Math.abs(pnlPct) < 0.1) return "Breakeven";
+  return pnl > 0 ? "Win" : "Loss";
+};
+
 export const calculatePnL = (trade) => {
   if (trade.type !== "Trade" || !trade.exitPrice || !trade.entryPrice) {
     return { pnl: 0, pnlPct: 0, pnlPips: 0, rrActual: 0, status: trade.type === "Trade" ? "Open" : "Completed" };
@@ -9,38 +25,21 @@ export const calculatePnL = (trade) => {
   const direction = trade.direction === "Buy" ? 1 : -1;
   const priceDiff = (trade.exitPrice - trade.entryPrice) * direction;
   const pnlPips = priceDiff * multiplier;
-  
-  let pnl = 0;
-  if (trade.pair.includes("XAU")) {
-    pnl = priceDiff * trade.lotSize * 100;
-  } else if (trade.pair.includes("XAG")) {
-    pnl = priceDiff * trade.lotSize * 5000;
-  } else if (trade.pair.includes("BTC") || trade.pair.includes("ETH") || trade.pair.includes("SOL") ||
-             trade.pair.includes("DOGE") || trade.pair.includes("ADA") || trade.pair.includes("XRP") ||
-             trade.pair.includes("DOT") || trade.pair.includes("ONDO") || trade.pair.includes("WIF") ||
-             trade.pair.includes("BNB") || trade.pair.includes("ATOM") || trade.pair.includes("HYPE") ||
-             trade.pair.includes("CRO") || trade.pair.includes("POL") || trade.pair.includes("AVAX") ||
-             trade.pair.includes("NEAR")) {
-    pnl = priceDiff * trade.lotSize;
-  } else {
-    pnl = priceDiff * trade.lotSize * 100000;
-  }
-
+  const pnl = computePnlAmount(priceDiff, trade.pair, trade.lotSize);
   const pnlPct = trade.entryPrice !== 0 ? (priceDiff / trade.entryPrice) * 100 : 0;
-  
+
   const slDiff = Math.abs(trade.entryPrice - trade.stopLoss);
-  const tpDiff = Math.abs(trade.takeProfit - trade.entryPrice);
   const actualDiff = Math.abs(trade.exitPrice - trade.entryPrice);
   const rrActual = slDiff !== 0 ? (actualDiff / slDiff) * (pnl >= 0 ? 1 : -1) : 0;
-  
-  let status = "Open";
-  if (trade.exitPrice) {
-    if (Math.abs(pnlPct) < 0.1) status = "Breakeven";
-    else if (pnl > 0) status = "Win";
-    else status = "Loss";
-  }
+  const status = computeTradeStatus(pnl, pnlPct, !!trade.exitPrice);
 
-  return { pnl: Math.round(pnl * 100) / 100, pnlPct: Math.round(pnlPct * 100) / 100, pnlPips: Math.round(pnlPips * 10) / 10, rrActual: Math.round(rrActual * 100) / 100, status };
+  return {
+    pnl: Math.round(pnl * 100) / 100,
+    pnlPct: Math.round(pnlPct * 100) / 100,
+    pnlPips: Math.round(pnlPips * 10) / 10,
+    rrActual: Math.round(rrActual * 100) / 100,
+    status,
+  };
 };
 
 export const getTradeStats = (trades, startingBalance = 10000) => {
