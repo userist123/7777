@@ -1,3 +1,20 @@
-# Test Credentials
-# Agent writes here when creating/modifying auth credentials (admin accounts, test users).
-# Testing agent reads this before auth tests. Fork/continuation agents read on startup.
+# WOB ART Test Credentials
+
+## Admin Account
+- Email: admin@wobart.ro
+- Password: WobAdmin2026!
+- Role: admin
+
+## Test User (create via register)
+- Email: test@example.com
+- Password: Test123!
+- Role: user
+
+## Auth Endpoints
+- POST /api/auth/register
+- POST /api/auth/login
+- POST /api/auth/logout
+- GET /api/auth/me
+- POST /api/auth/refresh
+- POST /api/auth/forgot-password
+- POST /api/auth/reset-password
